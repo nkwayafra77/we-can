@@ -71,7 +71,9 @@ export default function AdminDashboard() {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Failed to load dashboard.');
+        setError(
+          result.error || 'Failed to load dashboard.'
+        );
         return;
       }
 
@@ -105,35 +107,46 @@ export default function AdminDashboard() {
     setError('');
 
     try {
-      const response = await fetch('/api/admin/payments', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          payment_id: paymentId,
-          action,
-        }),
-      });
+      const response = await fetch(
+        '/api/admin/payments',
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            payment_id: paymentId,
+            action,
+          }),
+        }
+      );
 
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Payment action failed.');
+        setError(
+          result.error || 'Payment action failed.'
+        );
         return;
       }
 
-      setMessage(result.message || 'Payment updated successfully.');
+      setMessage(
+        result.message ||
+          'Payment updated successfully.'
+      );
 
       await loadDashboard();
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(
+        'Something went wrong. Please try again.'
+      );
     } finally {
       setActionLoading('');
     }
   }
 
-  const transactions: Payment[] = data?.transactions || [];
+  const transactions: Payment[] =
+    data?.transactions || [];
 
   const pendingPayments = transactions.filter(
     (payment) => payment.status === 'pending'
@@ -143,11 +156,8 @@ export default function AdminDashboard() {
     (payment) => payment.status === 'paid'
   );
 
-  const unpaidPayments = transactions.filter(
-    (payment) => payment.status === 'unpaid'
-  );
-
-  const families: Family[] = data?.families || [];
+  const families: Family[] =
+    data?.families || [];
 
   return (
     <main
@@ -201,7 +211,9 @@ export default function AdminDashboard() {
 
           <select
             value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
+            onChange={(e) =>
+              setYear(Number(e.target.value))
+            }
             style={{
               padding: '12px 18px',
               borderRadius: '10px',
@@ -282,13 +294,17 @@ export default function AdminDashboard() {
 
               <SummaryCard
                 title="Collected"
-                value={`${Number(data.collected || 0).toLocaleString()} RWF`}
+                value={`${Number(
+                  data.collected || 0
+                ).toLocaleString()} RWF`}
                 icon="💰"
               />
 
               <SummaryCard
                 title="Expected"
-                value={`${Number(data.expected || 0).toLocaleString()} RWF`}
+                value={`${Number(
+                  data.expected || 0
+                ).toLocaleString()} RWF`}
                 icon="🎯"
               />
 
@@ -342,7 +358,8 @@ export default function AdminDashboard() {
                       marginTop: '7px',
                     }}
                   >
-                    Check Serge's MTN MoMo before confirming.
+                    Check Serge&apos;s MTN MoMo before
+                    confirming.
                   </p>
                 </div>
 
@@ -465,17 +482,12 @@ export default function AdminDashboard() {
                             <td style={tdStyle}>
                               <span
                                 style={{
-                                  background:
-                                    '#fef3c7',
+                                  background: '#fef3c7',
                                   color: '#92400e',
-                                  padding:
-                                    '6px 10px',
-                                  borderRadius:
-                                    '20px',
-                                  fontSize:
-                                    '13px',
-                                  fontWeight:
-                                    'bold',
+                                  padding: '6px 10px',
+                                  borderRadius: '20px',
+                                  fontSize: '13px',
+                                  fontWeight: 'bold',
                                 }}
                               >
                                 PENDING
@@ -501,18 +513,13 @@ export default function AdminDashboard() {
                                     payment.id
                                   }
                                   style={{
-                                    background:
-                                      '#16a34a',
+                                    background: '#16a34a',
                                     color: 'white',
                                     border: 'none',
-                                    padding:
-                                      '10px 14px',
-                                    borderRadius:
-                                      '8px',
-                                    cursor:
-                                      'pointer',
-                                    fontWeight:
-                                      'bold',
+                                    padding: '10px 14px',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
                                   }}
                                 >
                                   {actionLoading ===
@@ -533,18 +540,13 @@ export default function AdminDashboard() {
                                     payment.id
                                   }
                                   style={{
-                                    background:
-                                      '#dc2626',
+                                    background: '#dc2626',
                                     color: 'white',
                                     border: 'none',
-                                    padding:
-                                      '10px 14px',
-                                    borderRadius:
-                                      '8px',
-                                    cursor:
-                                      'pointer',
-                                    fontWeight:
-                                      'bold',
+                                    padding: '10px 14px',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
                                   }}
                                 >
                                   {actionLoading ===
@@ -566,101 +568,447 @@ export default function AdminDashboard() {
             {/* FAMILY STANDING */}
             <section
               style={{
-                background: 'white',
-                borderRadius: '18px',
-                padding: '25px',
+                background:
+                  'linear-gradient(135deg, #111827 0%, #1f2937 100%)',
+                borderRadius: '24px',
+                padding: '28px',
                 marginBottom: '25px',
+                color: 'white',
+                boxShadow:
+                  '0 10px 30px rgba(0,0,0,0.12)',
               }}
             >
-              <h2
-                style={{
-                  marginTop: 0,
-                }}
-              >
-                🏆 Family Standing
-              </h2>
-
+              {/* FAMILY STANDING HEADER */}
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns:
-                    'repeat(auto-fit, minmax(260px, 1fr))',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
                   gap: '15px',
+                  marginBottom: '25px',
                 }}
               >
-                {families.map((family) => (
-                  <div
-                    key={family.name}
+                <div>
+                  <h2
                     style={{
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '14px',
-                      padding: '18px',
+                      margin: 0,
+                      fontSize: '26px',
+                      fontWeight: '800',
                     }}
                   >
-                    <h3
-                      style={{
-                        marginTop: 0,
-                        fontSize: '17px',
-                      }}
-                    >
-                      {family.name}
-                    </h3>
+                    🏆 Family Standing
+                  </h2>
 
-                    <p>
-                      👥 Members:{' '}
-                      <strong>
-                        {family.members}
-                      </strong>
-                    </p>
+                  <p
+                    style={{
+                      margin: '7px 0 0',
+                      color: '#d1d5db',
+                      fontSize: '14px',
+                    }}
+                  >
+                    Family contribution progress for{' '}
+                    {year}
+                  </p>
+                </div>
 
-                    <p>
-                      💰 Collected:{' '}
-                      <strong>
-                        {Number(
-                          family.collected || 0
-                        ).toLocaleString()}{' '}
-                        RWF
-                      </strong>
-                    </p>
-
-                    <p>
-                      ⏳ Pending:{' '}
-                      <strong>
-                        {family.pending}
-                      </strong>
-                    </p>
-
-                    <div
-                      style={{
-                        height: '10px',
-                        background: '#e5e7eb',
-                        borderRadius: '10px',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: `${family.percent}%`,
-                          height: '100%',
-                          background: '#16a34a',
-                        }}
-                      />
-                    </div>
-
-                    <p
-                      style={{
-                        marginBottom: 0,
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {family.percent}% collected
-                    </p>
-                  </div>
-                ))}
+                <div
+                  style={{
+                    background:
+                      'rgba(255,255,255,0.10)',
+                    border:
+                      '1px solid rgba(255,255,255,0.15)',
+                    padding: '10px 16px',
+                    borderRadius: '30px',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                  }}
+                >
+                  📅 {year}
+                </div>
               </div>
+
+              {families.length === 0 ? (
+                <div
+                  style={{
+                    background:
+                      'rgba(255,255,255,0.08)',
+                    borderRadius: '16px',
+                    padding: '30px',
+                    textAlign: 'center',
+                    color: '#d1d5db',
+                  }}
+                >
+                  No family data available.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns:
+                      'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: '18px',
+                  }}
+                >
+                  {[...families]
+                    .sort(
+                      (a, b) =>
+                        Number(b.percent || 0) -
+                        Number(a.percent || 0)
+                    )
+                    .map((family, index) => {
+                      const position = index + 1;
+
+                      const progress = Math.min(
+                        100,
+                        Math.max(
+                          0,
+                          Number(
+                            family.percent || 0
+                          )
+                        )
+                      );
+
+                      const rankIcon =
+                        position === 1
+                          ? '🥇'
+                          : position === 2
+                          ? '🥈'
+                          : position === 3
+                          ? '🥉'
+                          : '🏅';
+
+                      const rankBackground =
+                        position === 1
+                          ? '#fbbf24'
+                          : position === 2
+                          ? '#d1d5db'
+                          : position === 3
+                          ? '#cd7c32'
+                          : 'rgba(255,255,255,0.12)';
+
+                      return (
+                        <div
+                          key={family.name}
+                          style={{
+                            position: 'relative',
+                            overflow: 'hidden',
+                            background:
+                              'rgba(255,255,255,0.08)',
+                            border:
+                              position <= 3
+                                ? '1px solid rgba(255,255,255,0.25)'
+                                : '1px solid rgba(255,255,255,0.10)',
+                            borderRadius: '20px',
+                            padding: '20px',
+                            boxShadow:
+                              position === 1
+                                ? '0 8px 25px rgba(251,191,36,0.15)'
+                                : 'none',
+                          }}
+                        >
+                          {/* RANK */}
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: '15px',
+                              right: '15px',
+                              width: '50px',
+                              height: '50px',
+                              borderRadius: '50%',
+                              background:
+                                rankBackground,
+                              color:
+                                position <= 3
+                                  ? '#111827'
+                                  : 'white',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent:
+                                'center',
+                              fontSize: '22px',
+                              fontWeight: '800',
+                            }}
+                          >
+                            {rankIcon}
+                          </div>
+
+                          {/* FAMILY NAME */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              paddingRight: '60px',
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: '48px',
+                                height: '48px',
+                                borderRadius: '14px',
+                                background:
+                                  'rgba(255,255,255,0.12)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent:
+                                  'center',
+                                fontSize: '23px',
+                                flexShrink: 0,
+                              }}
+                            >
+                              👨‍👩‍👧‍👦
+                            </div>
+
+                            <div>
+                              <div
+                                style={{
+                                  fontSize: '17px',
+                                  fontWeight: '800',
+                                  lineHeight: '1.3',
+                                }}
+                              >
+                                {family.name}
+                              </div>
+
+                              <div
+                                style={{
+                                  fontSize: '12px',
+                                  color: '#9ca3af',
+                                  marginTop: '4px',
+                                }}
+                              >
+                                Rank #{position}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* CONTRIBUTION PROGRESS */}
+                          <div
+                            style={{
+                              marginTop: '22px',
+                              background:
+                                'rgba(255,255,255,0.07)',
+                              borderRadius: '15px',
+                              padding: '15px',
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent:
+                                  'space-between',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: '#d1d5db',
+                                  fontSize: '13px',
+                                }}
+                              >
+                                Contribution
+                              </span>
+
+                              <strong
+                                style={{
+                                  fontSize: '21px',
+                                }}
+                              >
+                                {progress}%
+                              </strong>
+                            </div>
+
+                            <div
+                              style={{
+                                height: '10px',
+                                background:
+                                  'rgba(255,255,255,0.12)',
+                                borderRadius: '20px',
+                                overflow: 'hidden',
+                                marginTop: '12px',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: `${progress}%`,
+                                  height: '100%',
+                                  borderRadius: '20px',
+                                  background:
+                                    position === 1
+                                      ? '#fbbf24'
+                                      : '#22c55e',
+                                  transition:
+                                    'width 0.5s ease',
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* STATISTICS */}
+                          <div
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns:
+                                'repeat(3, 1fr)',
+                              gap: '8px',
+                              marginTop: '15px',
+                            }}
+                          >
+                            {/* MEMBERS */}
+                            <div
+                              style={{
+                                background:
+                                  'rgba(255,255,255,0.06)',
+                                borderRadius: '12px',
+                                padding: '12px 6px',
+                                textAlign: 'center',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: '18px',
+                                }}
+                              >
+                                👥
+                              </div>
+
+                              <div
+                                style={{
+                                  fontWeight: '800',
+                                  marginTop: '4px',
+                                }}
+                              >
+                                {family.members}
+                              </div>
+
+                              <div
+                                style={{
+                                  color: '#9ca3af',
+                                  fontSize: '10px',
+                                }}
+                              >
+                                Members
+                              </div>
+                            </div>
+
+                            {/* COLLECTED */}
+                            <div
+                              style={{
+                                background:
+                                  'rgba(255,255,255,0.06)',
+                                borderRadius: '12px',
+                                padding: '12px 6px',
+                                textAlign: 'center',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: '18px',
+                                }}
+                              >
+                                💰
+                              </div>
+
+                              <div
+                                style={{
+                                  fontWeight: '800',
+                                  marginTop: '4px',
+                                  fontSize: '12px',
+                                }}
+                              >
+                                {Number(
+                                  family.collected || 0
+                                ).toLocaleString()}
+                              </div>
+
+                              <div
+                                style={{
+                                  color: '#9ca3af',
+                                  fontSize: '10px',
+                                }}
+                              >
+                                RWF
+                              </div>
+                            </div>
+
+                            {/* PENDING */}
+                            <div
+                              style={{
+                                background:
+                                  'rgba(255,255,255,0.06)',
+                                borderRadius: '12px',
+                                padding: '12px 6px',
+                                textAlign: 'center',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: '18px',
+                                }}
+                              >
+                                ⏳
+                              </div>
+
+                              <div
+                                style={{
+                                  fontWeight: '800',
+                                  marginTop: '4px',
+                                }}
+                              >
+                                {family.pending}
+                              </div>
+
+                              <div
+                                style={{
+                                  color: '#9ca3af',
+                                  fontSize: '10px',
+                                }}
+                              >
+                                Pending
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* PAID CONTRIBUTIONS */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent:
+                                'space-between',
+                              alignItems: 'center',
+                              marginTop: '16px',
+                              paddingTop: '14px',
+                              borderTop:
+                                '1px solid rgba(255,255,255,0.08)',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: '12px',
+                                color: '#9ca3af',
+                              }}
+                            >
+                              Paid contributions
+                            </span>
+
+                            <span
+                              style={{
+                                fontSize: '13px',
+                                fontWeight: '800',
+                              }}
+                            >
+                              {family.paid}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
             </section>
 
-            {/* ALL PAYMENTS */}
+            {/* ALL PAYMENT RECORDS */}
             <section
               style={{
                 background: 'white',
@@ -698,15 +1046,19 @@ export default function AdminDashboard() {
                       <th style={thStyle}>
                         Member
                       </th>
+
                       <th style={thStyle}>
                         Family
                       </th>
+
                       <th style={thStyle}>
                         Month
                       </th>
+
                       <th style={thStyle}>
                         Amount
                       </th>
+
                       <th style={thStyle}>
                         Status
                       </th>
