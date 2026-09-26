@@ -44,16 +44,21 @@ type Family = {
 };
 
 export default function AdminDashboard() {
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [year, setYear] = useState(
+    new Date().getFullYear()
+  );
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState('');
+  const [actionLoading, setActionLoading] =
+    useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
   const years = Array.from(
     { length: 11 },
-    (_, i) => new Date().getFullYear() - i
+    (_, i) =>
+      new Date().getFullYear() - i
   );
 
   async function loadDashboard() {
@@ -72,14 +77,17 @@ export default function AdminDashboard() {
 
       if (!response.ok) {
         setError(
-          result.error || 'Failed to load dashboard.'
+          result.error ||
+            'Failed to load dashboard.'
         );
         return;
       }
 
       setData(result);
     } catch {
-      setError('Failed to connect to the server.');
+      setError(
+        'Failed to connect to the server.'
+      );
     } finally {
       setLoading(false);
     }
@@ -125,7 +133,8 @@ export default function AdminDashboard() {
 
       if (!response.ok) {
         setError(
-          result.error || 'Payment action failed.'
+          result.error ||
+            'Payment action failed.'
         );
         return;
       }
@@ -148,13 +157,17 @@ export default function AdminDashboard() {
   const transactions: Payment[] =
     data?.transactions || [];
 
-  const pendingPayments = transactions.filter(
-    (payment) => payment.status === 'pending'
-  );
+  const pendingPayments =
+    transactions.filter(
+      (payment) =>
+        payment.status === 'pending'
+    );
 
-  const paidPayments = transactions.filter(
-    (payment) => payment.status === 'paid'
-  );
+  const paidPayments =
+    transactions.filter(
+      (payment) =>
+        payment.status === 'paid'
+    );
 
   const families: Family[] =
     data?.families || [];
@@ -165,7 +178,8 @@ export default function AdminDashboard() {
         minHeight: '100vh',
         background: '#f3f4f6',
         padding: '30px',
-        fontFamily: 'Arial, sans-serif',
+        fontFamily:
+          'Arial, sans-serif',
       }}
     >
       <div
@@ -174,19 +188,24 @@ export default function AdminDashboard() {
           margin: '0 auto',
         }}
       >
+
         {/* HEADER */}
         <div
           style={{
-            background: '#111827',
+            background:
+              'linear-gradient(135deg, #111827, #1f2937)',
             color: 'white',
             padding: '25px',
-            borderRadius: '18px',
+            borderRadius: '20px',
             marginBottom: '25px',
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent:
+              'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: '15px',
+            boxShadow:
+              '0 8px 25px rgba(0,0,0,0.12)',
           }}
         >
           <div>
@@ -194,6 +213,7 @@ export default function AdminDashboard() {
               style={{
                 margin: 0,
                 fontSize: '28px',
+                fontWeight: '800',
               }}
             >
               WE CAN Admin Dashboard
@@ -201,18 +221,22 @@ export default function AdminDashboard() {
 
             <p
               style={{
-                margin: '8px 0 0',
+                margin:
+                  '8px 0 0',
                 color: '#d1d5db',
               }}
             >
-              Manage members and confirm payments
+              Manage members and
+              confirm payments
             </p>
           </div>
 
           <select
             value={year}
             onChange={(e) =>
-              setYear(Number(e.target.value))
+              setYear(
+                Number(e.target.value)
+              )
             }
             style={{
               padding: '12px 18px',
@@ -220,10 +244,14 @@ export default function AdminDashboard() {
               border: 'none',
               fontSize: '16px',
               fontWeight: 'bold',
+              cursor: 'pointer',
             }}
           >
             {years.map((item) => (
-              <option key={item} value={item}>
+              <option
+                key={item}
+                value={item}
+              >
                 {item}
               </option>
             ))}
@@ -276,6 +304,7 @@ export default function AdminDashboard() {
 
         {!loading && data && (
           <>
+
             {/* SUMMARY CARDS */}
             <div
               style={{
@@ -335,7 +364,8 @@ export default function AdminDashboard() {
               <div
                 style={{
                   display: 'flex',
-                  justifyContent: 'space-between',
+                  justifyContent:
+                    'space-between',
                   alignItems: 'center',
                   marginBottom: '20px',
                   flexWrap: 'wrap',
@@ -358,19 +388,21 @@ export default function AdminDashboard() {
                       marginTop: '7px',
                     }}
                   >
-                    Check Serge&apos;s MTN MoMo before
-                    confirming.
+                    Check Serge&apos;s MTN
+                    MoMo before confirming.
                   </p>
                 </div>
 
                 <div
                   style={{
                     background:
-                      pendingPayments.length > 0
+                      pendingPayments.length >
+                      0
                         ? '#fef3c7'
                         : '#dcfce7',
                     color:
-                      pendingPayments.length > 0
+                      pendingPayments.length >
+                      0
                         ? '#92400e'
                         : '#166534',
                     padding: '10px 15px',
@@ -378,11 +410,13 @@ export default function AdminDashboard() {
                     fontWeight: 'bold',
                   }}
                 >
-                  {pendingPayments.length} Pending
+                  {pendingPayments.length}{' '}
+                  Pending
                 </div>
               </div>
 
-              {pendingPayments.length === 0 ? (
+              {pendingPayments.length ===
+              0 ? (
                 <div
                   style={{
                     padding: '30px',
@@ -392,7 +426,8 @@ export default function AdminDashboard() {
                     color: '#6b7280',
                   }}
                 >
-                  No pending payments for {year}.
+                  No pending payments
+                  for {year}.
                 </div>
               ) : (
                 <div
@@ -403,41 +438,57 @@ export default function AdminDashboard() {
                   <table
                     style={{
                       width: '100%',
-                      borderCollapse: 'collapse',
+                      borderCollapse:
+                        'collapse',
                       minWidth: '850px',
                     }}
                   >
                     <thead>
                       <tr
                         style={{
-                          background: '#f3f4f6',
+                          background:
+                            '#f3f4f6',
                         }}
                       >
-                        <th style={thStyle}>
+                        <th
+                          style={thStyle}
+                        >
                           Member
                         </th>
 
-                        <th style={thStyle}>
+                        <th
+                          style={thStyle}
+                        >
                           Phone
                         </th>
 
-                        <th style={thStyle}>
+                        <th
+                          style={thStyle}
+                        >
                           Family
                         </th>
 
-                        <th style={thStyle}>
+                        <th
+                          style={thStyle}
+                        >
                           Month
                         </th>
 
-                        <th style={thStyle}>
+                        <th
+                          style={thStyle}
+                        >
                           Amount
                         </th>
 
-                        <th style={thStyle}>
+                        <th
+                          style={thStyle}
+                        >
                           Status
                         </th>
 
-                        <th style={thStyle}>
+                        <th
+                          style={thStyle}
+                        >
                           Action
                         </th>
                       </tr>
@@ -446,58 +497,106 @@ export default function AdminDashboard() {
                     <tbody>
                       {pendingPayments.map(
                         (payment) => (
-                          <tr key={payment.id}>
-                            <td style={tdStyle}>
+                          <tr
+                            key={
+                              payment.id
+                            }
+                          >
+                            <td
+                              style={
+                                tdStyle
+                              }
+                            >
                               <strong>
-                                {payment.member?.name ||
+                                {payment
+                                  .member
+                                  ?.name ||
                                   'Unknown'}
                               </strong>
                             </td>
 
-                            <td style={tdStyle}>
-                              {payment.member?.phone ||
+                            <td
+                              style={
+                                tdStyle
+                              }
+                            >
+                              {payment
+                                .member
+                                ?.phone ||
                                 '-'}
                             </td>
 
-                            <td style={tdStyle}>
-                              {payment.member?.family ||
+                            <td
+                              style={
+                                tdStyle
+                              }
+                            >
+                              {payment
+                                .member
+                                ?.family ||
                                 '-'}
                             </td>
 
-                            <td style={tdStyle}>
+                            <td
+                              style={
+                                tdStyle
+                              }
+                            >
                               {MONTHS[
-                                payment.month - 1
-                              ] || payment.month}
+                                payment.month -
+                                  1
+                              ] ||
+                                payment.month}
                             </td>
 
-                            <td style={tdStyle}>
+                            <td
+                              style={
+                                tdStyle
+                              }
+                            >
                               <strong>
                                 {Number(
-                                  payment.amount || 0
+                                  payment.amount ||
+                                    0
                                 ).toLocaleString()}{' '}
                                 RWF
                               </strong>
                             </td>
 
-                            <td style={tdStyle}>
+                            <td
+                              style={
+                                tdStyle
+                              }
+                            >
                               <span
                                 style={{
-                                  background: '#fef3c7',
-                                  color: '#92400e',
-                                  padding: '6px 10px',
-                                  borderRadius: '20px',
-                                  fontSize: '13px',
-                                  fontWeight: 'bold',
+                                  background:
+                                    '#fef3c7',
+                                  color:
+                                    '#92400e',
+                                  padding:
+                                    '6px 10px',
+                                  borderRadius:
+                                    '20px',
+                                  fontSize:
+                                    '13px',
+                                  fontWeight:
+                                    'bold',
                                 }}
                               >
                                 PENDING
                               </span>
                             </td>
 
-                            <td style={tdStyle}>
+                            <td
+                              style={
+                                tdStyle
+                              }
+                            >
                               <div
                                 style={{
-                                  display: 'flex',
+                                  display:
+                                    'flex',
                                   gap: '8px',
                                 }}
                               >
@@ -513,13 +612,20 @@ export default function AdminDashboard() {
                                     payment.id
                                   }
                                   style={{
-                                    background: '#16a34a',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '10px 14px',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold',
+                                    background:
+                                      '#16a34a',
+                                    color:
+                                      'white',
+                                    border:
+                                      'none',
+                                    padding:
+                                      '10px 14px',
+                                    borderRadius:
+                                      '8px',
+                                    cursor:
+                                      'pointer',
+                                    fontWeight:
+                                      'bold',
                                   }}
                                 >
                                   {actionLoading ===
@@ -540,13 +646,20 @@ export default function AdminDashboard() {
                                     payment.id
                                   }
                                   style={{
-                                    background: '#dc2626',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '10px 14px',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontWeight: 'bold',
+                                    background:
+                                      '#dc2626',
+                                    color:
+                                      'white',
+                                    border:
+                                      'none',
+                                    padding:
+                                      '10px 14px',
+                                    borderRadius:
+                                      '8px',
+                                    cursor:
+                                      'pointer',
+                                    fontWeight:
+                                      'bold',
                                   }}
                                 >
                                   {actionLoading ===
@@ -565,196 +678,230 @@ export default function AdminDashboard() {
               )}
             </section>
 
-            {/* FAMILY STANDING */}
+            {/* ================================================= */}
+            {/* NEW FAMILY STANDING DESIGN */}
+            {/* ================================================= */}
+
             <section
               style={{
                 background:
-                  'linear-gradient(135deg, #111827 0%, #1f2937 100%)',
-                borderRadius: '24px',
-                padding: '28px',
+                  'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                borderRadius: '26px',
+                padding: '30px',
                 marginBottom: '25px',
                 color: 'white',
                 boxShadow:
-                  '0 10px 30px rgba(0,0,0,0.12)',
+                  '0 15px 40px rgba(15,23,42,0.18)',
               }}
             >
-              {/* FAMILY STANDING HEADER */}
+              {/* TITLE */}
               <div
                 style={{
                   display: 'flex',
-                  justifyContent: 'space-between',
+                  justifyContent:
+                    'space-between',
                   alignItems: 'center',
                   flexWrap: 'wrap',
                   gap: '15px',
-                  marginBottom: '25px',
+                  marginBottom: '28px',
                 }}
               >
                 <div>
-                  <h2
+                  <div
                     style={{
-                      margin: 0,
-                      fontSize: '26px',
-                      fontWeight: '800',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
                     }}
                   >
-                    🏆 Family Standing
-                  </h2>
+                    <span
+                      style={{
+                        fontSize: '30px',
+                      }}
+                    >
+                      🏆
+                    </span>
+
+                    <h2
+                      style={{
+                        margin: 0,
+                        fontSize: '28px',
+                        fontWeight: '800',
+                      }}
+                    >
+                      Family Standing
+                    </h2>
+                  </div>
 
                   <p
                     style={{
-                      margin: '7px 0 0',
-                      color: '#d1d5db',
+                      margin:
+                        '8px 0 0 40px',
+                      color: '#94a3b8',
                       fontSize: '14px',
                     }}
                   >
-                    Family contribution progress for{' '}
-                    {year}
+                    Family contribution
+                    leaderboard for {year}
                   </p>
                 </div>
 
                 <div
                   style={{
-                    background:
-                      'rgba(255,255,255,0.10)',
-                    border:
-                      '1px solid rgba(255,255,255,0.15)',
-                    padding: '10px 16px',
+                    padding:
+                      '10px 18px',
                     borderRadius: '30px',
-                    fontSize: '14px',
+                    background:
+                      'rgba(255,255,255,0.08)',
+                    border:
+                      '1px solid rgba(255,255,255,0.12)',
                     fontWeight: '700',
+                    fontSize: '14px',
                   }}
                 >
                   📅 {year}
                 </div>
               </div>
 
-              {families.length === 0 ? (
-                <div
-                  style={{
-                    background:
-                      'rgba(255,255,255,0.08)',
-                    borderRadius: '16px',
-                    padding: '30px',
-                    textAlign: 'center',
-                    color: '#d1d5db',
-                  }}
-                >
-                  No family data available.
-                </div>
-              ) : (
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns:
-                      'repeat(auto-fit, minmax(280px, 1fr))',
-                    gap: '18px',
-                  }}
-                >
-                  {[...families]
-                    .sort(
-                      (a, b) =>
-                        Number(b.percent || 0) -
-                        Number(a.percent || 0)
-                    )
-                    .map((family, index) => {
-                      const position = index + 1;
+              {/* FAMILY GRID */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns:
+                    'repeat(auto-fit, minmax(290px, 1fr))',
+                  gap: '20px',
+                }}
+              >
+                {[...families]
+                  .sort(
+                    (a, b) =>
+                      Number(
+                        b.percent || 0
+                      ) -
+                      Number(
+                        a.percent || 0
+                      )
+                  )
+                  .map(
+                    (
+                      family,
+                      index
+                    ) => {
+                      const rank =
+                        index + 1;
 
-                      const progress = Math.min(
-                        100,
-                        Math.max(
-                          0,
-                          Number(
-                            family.percent || 0
+                      const progress =
+                        Math.min(
+                          100,
+                          Math.max(
+                            0,
+                            Number(
+                              family.percent ||
+                                0
+                            )
                           )
-                        )
-                      );
+                        );
 
-                      const rankIcon =
-                        position === 1
+                      const medal =
+                        rank === 1
                           ? '🥇'
-                          : position === 2
+                          : rank === 2
                           ? '🥈'
-                          : position === 3
+                          : rank === 3
                           ? '🥉'
                           : '🏅';
 
-                      const rankBackground =
-                        position === 1
+                      const medalBackground =
+                        rank === 1
                           ? '#fbbf24'
-                          : position === 2
+                          : rank === 2
                           ? '#d1d5db'
-                          : position === 3
-                          ? '#cd7c32'
-                          : 'rgba(255,255,255,0.12)';
+                          : rank === 3
+                          ? '#d97732'
+                          : '#334155';
 
                       return (
                         <div
-                          key={family.name}
+                          key={
+                            family.name
+                          }
                           style={{
-                            position: 'relative',
-                            overflow: 'hidden',
                             background:
-                              'rgba(255,255,255,0.08)',
+                              'rgba(255,255,255,0.07)',
                             border:
-                              position <= 3
-                                ? '1px solid rgba(255,255,255,0.25)'
-                                : '1px solid rgba(255,255,255,0.10)',
-                            borderRadius: '20px',
-                            padding: '20px',
-                            boxShadow:
-                              position === 1
-                                ? '0 8px 25px rgba(251,191,36,0.15)'
-                                : 'none',
+                              rank <= 3
+                                ? '1px solid rgba(255,255,255,0.20)'
+                                : '1px solid rgba(255,255,255,0.08)',
+                            borderRadius:
+                              '22px',
+                            padding:
+                              '22px',
+                            position:
+                              'relative',
+                            overflow:
+                              'hidden',
                           }}
                         >
-                          {/* RANK */}
+                          {/* MEDAL */}
                           <div
                             style={{
-                              position: 'absolute',
-                              top: '15px',
-                              right: '15px',
-                              width: '50px',
-                              height: '50px',
-                              borderRadius: '50%',
+                              position:
+                                'absolute',
+                              right:
+                                '18px',
+                              top:
+                                '18px',
+                              width:
+                                '52px',
+                              height:
+                                '52px',
+                              borderRadius:
+                                '50%',
                               background:
-                                rankBackground,
-                              color:
-                                position <= 3
-                                  ? '#111827'
-                                  : 'white',
-                              display: 'flex',
-                              alignItems: 'center',
+                                medalBackground,
+                              display:
+                                'flex',
+                              alignItems:
+                                'center',
                               justifyContent:
                                 'center',
-                              fontSize: '22px',
-                              fontWeight: '800',
+                              fontSize:
+                                '23px',
                             }}
                           >
-                            {rankIcon}
+                            {medal}
                           </div>
 
                           {/* FAMILY NAME */}
                           <div
                             style={{
-                              display: 'flex',
-                              alignItems: 'center',
+                              display:
+                                'flex',
+                              alignItems:
+                                'center',
                               gap: '12px',
-                              paddingRight: '60px',
+                              paddingRight:
+                                '65px',
                             }}
                           >
                             <div
                               style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '14px',
+                                width:
+                                  '50px',
+                                height:
+                                  '50px',
+                                borderRadius:
+                                  '15px',
                                 background:
-                                  'rgba(255,255,255,0.12)',
-                                display: 'flex',
-                                alignItems: 'center',
+                                  'rgba(255,255,255,0.10)',
+                                display:
+                                  'flex',
+                                alignItems:
+                                  'center',
                                 justifyContent:
                                   'center',
-                                fontSize: '23px',
-                                flexShrink: 0,
+                                fontSize:
+                                  '24px',
                               }}
                             >
                               👨‍👩‍👧‍👦
@@ -763,249 +910,205 @@ export default function AdminDashboard() {
                             <div>
                               <div
                                 style={{
-                                  fontSize: '17px',
-                                  fontWeight: '800',
-                                  lineHeight: '1.3',
+                                  fontSize:
+                                    '17px',
+                                  fontWeight:
+                                    '800',
+                                  lineHeight:
+                                    '1.3',
                                 }}
                               >
-                                {family.name}
+                                {
+                                  family.name
+                                }
                               </div>
 
                               <div
                                 style={{
-                                  fontSize: '12px',
-                                  color: '#9ca3af',
-                                  marginTop: '4px',
+                                  color:
+                                    '#94a3b8',
+                                  fontSize:
+                                    '12px',
+                                  marginTop:
+                                    '4px',
                                 }}
                               >
-                                Rank #{position}
+                                Rank #
+                                {rank}
                               </div>
                             </div>
                           </div>
 
-                          {/* CONTRIBUTION PROGRESS */}
+                          {/* PERCENTAGE */}
                           <div
                             style={{
-                              marginTop: '22px',
-                              background:
-                                'rgba(255,255,255,0.07)',
-                              borderRadius: '15px',
-                              padding: '15px',
+                              marginTop:
+                                '22px',
+                              display:
+                                'flex',
+                              justifyContent:
+                                'space-between',
+                              alignItems:
+                                'flex-end',
                             }}
                           >
-                            <div
-                              style={{
-                                display: 'flex',
-                                justifyContent:
-                                  'space-between',
-                                alignItems: 'center',
-                              }}
-                            >
-                              <span
+                            <div>
+                              <div
                                 style={{
-                                  color: '#d1d5db',
-                                  fontSize: '13px',
+                                  color:
+                                    '#94a3b8',
+                                  fontSize:
+                                    '12px',
+                                  textTransform:
+                                    'uppercase',
+                                  letterSpacing:
+                                    '0.5px',
                                 }}
                               >
                                 Contribution
-                              </span>
+                              </div>
 
-                              <strong
+                              <div
                                 style={{
-                                  fontSize: '21px',
+                                  fontSize:
+                                    '32px',
+                                  fontWeight:
+                                    '900',
+                                  marginTop:
+                                    '3px',
                                 }}
                               >
                                 {progress}%
-                              </strong>
+                              </div>
                             </div>
 
                             <div
                               style={{
-                                height: '10px',
-                                background:
-                                  'rgba(255,255,255,0.12)',
-                                borderRadius: '20px',
-                                overflow: 'hidden',
-                                marginTop: '12px',
+                                fontSize:
+                                  '12px',
+                                color:
+                                  '#94a3b8',
                               }}
                             >
-                              <div
-                                style={{
-                                  width: `${progress}%`,
-                                  height: '100%',
-                                  borderRadius: '20px',
-                                  background:
-                                    position === 1
-                                      ? '#fbbf24'
-                                      : '#22c55e',
-                                  transition:
-                                    'width 0.5s ease',
-                                }}
-                              />
+                              {family.paid}{' '}
+                              paid
                             </div>
                           </div>
 
-                          {/* STATISTICS */}
+                          {/* PROGRESS BAR */}
                           <div
                             style={{
-                              display: 'grid',
+                              height:
+                                '11px',
+                              background:
+                                'rgba(255,255,255,0.10)',
+                              borderRadius:
+                                '20px',
+                              overflow:
+                                'hidden',
+                              marginTop:
+                                '12px',
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${progress}%`,
+                                height:
+                                  '100%',
+                                borderRadius:
+                                  '20px',
+                                background:
+                                  rank ===
+                                  1
+                                    ? 'linear-gradient(90deg, #f59e0b, #fbbf24)'
+                                    : 'linear-gradient(90deg, #16a34a, #4ade80)',
+                                transition:
+                                  'width 0.5s ease',
+                              }}
+                            />
+                          </div>
+
+                          {/* STATS */}
+                          <div
+                            style={{
+                              display:
+                                'grid',
                               gridTemplateColumns:
                                 'repeat(3, 1fr)',
                               gap: '8px',
-                              marginTop: '15px',
+                              marginTop:
+                                '18px',
                             }}
                           >
-                            {/* MEMBERS */}
-                            <div
-                              style={{
-                                background:
-                                  'rgba(255,255,255,0.06)',
-                                borderRadius: '12px',
-                                padding: '12px 6px',
-                                textAlign: 'center',
-                              }}
-                            >
-                              <div
-                                style={{
-                                  fontSize: '18px',
-                                }}
-                              >
-                                👥
-                              </div>
+                            <FamilyStat
+                              icon="👥"
+                              value={
+                                family.members
+                              }
+                              label="Members"
+                            />
 
-                              <div
-                                style={{
-                                  fontWeight: '800',
-                                  marginTop: '4px',
-                                }}
-                              >
-                                {family.members}
-                              </div>
+                            <FamilyStat
+                              icon="💰"
+                              value={Number(
+                                family.collected ||
+                                  0
+                              ).toLocaleString()}
+                              label="RWF"
+                            />
 
-                              <div
-                                style={{
-                                  color: '#9ca3af',
-                                  fontSize: '10px',
-                                }}
-                              >
-                                Members
-                              </div>
-                            </div>
-
-                            {/* COLLECTED */}
-                            <div
-                              style={{
-                                background:
-                                  'rgba(255,255,255,0.06)',
-                                borderRadius: '12px',
-                                padding: '12px 6px',
-                                textAlign: 'center',
-                              }}
-                            >
-                              <div
-                                style={{
-                                  fontSize: '18px',
-                                }}
-                              >
-                                💰
-                              </div>
-
-                              <div
-                                style={{
-                                  fontWeight: '800',
-                                  marginTop: '4px',
-                                  fontSize: '12px',
-                                }}
-                              >
-                                {Number(
-                                  family.collected || 0
-                                ).toLocaleString()}
-                              </div>
-
-                              <div
-                                style={{
-                                  color: '#9ca3af',
-                                  fontSize: '10px',
-                                }}
-                              >
-                                RWF
-                              </div>
-                            </div>
-
-                            {/* PENDING */}
-                            <div
-                              style={{
-                                background:
-                                  'rgba(255,255,255,0.06)',
-                                borderRadius: '12px',
-                                padding: '12px 6px',
-                                textAlign: 'center',
-                              }}
-                            >
-                              <div
-                                style={{
-                                  fontSize: '18px',
-                                }}
-                              >
-                                ⏳
-                              </div>
-
-                              <div
-                                style={{
-                                  fontWeight: '800',
-                                  marginTop: '4px',
-                                }}
-                              >
-                                {family.pending}
-                              </div>
-
-                              <div
-                                style={{
-                                  color: '#9ca3af',
-                                  fontSize: '10px',
-                                }}
-                              >
-                                Pending
-                              </div>
-                            </div>
+                            <FamilyStat
+                              icon="⏳"
+                              value={
+                                family.pending
+                              }
+                              label="Pending"
+                            />
                           </div>
 
-                          {/* PAID CONTRIBUTIONS */}
+                          {/* BOTTOM */}
                           <div
                             style={{
-                              display: 'flex',
-                              justifyContent:
-                                'space-between',
-                              alignItems: 'center',
-                              marginTop: '16px',
-                              paddingTop: '14px',
+                              marginTop:
+                                '18px',
+                              paddingTop:
+                                '14px',
                               borderTop:
                                 '1px solid rgba(255,255,255,0.08)',
+                              display:
+                                'flex',
+                              justifyContent:
+                                'space-between',
+                              alignItems:
+                                'center',
                             }}
                           >
                             <span
                               style={{
-                                fontSize: '12px',
-                                color: '#9ca3af',
+                                color:
+                                  '#94a3b8',
+                                fontSize:
+                                  '12px',
                               }}
                             >
-                              Paid contributions
+                              Paid
+                              contributions
                             </span>
 
-                            <span
+                            <strong
                               style={{
-                                fontSize: '13px',
-                                fontWeight: '800',
+                                fontSize:
+                                  '14px',
                               }}
                             >
                               {family.paid}
-                            </span>
+                            </strong>
                           </div>
                         </div>
                       );
-                    })}
-                </div>
-              )}
+                    }
+                  )}
+              </div>
             </section>
 
             {/* ALL PAYMENT RECORDS */}
@@ -1033,33 +1136,45 @@ export default function AdminDashboard() {
                 <table
                   style={{
                     width: '100%',
-                    borderCollapse: 'collapse',
+                    borderCollapse:
+                      'collapse',
                     minWidth: '800px',
                   }}
                 >
                   <thead>
                     <tr
                       style={{
-                        background: '#f3f4f6',
+                        background:
+                          '#f3f4f6',
                       }}
                     >
-                      <th style={thStyle}>
+                      <th
+                        style={thStyle}
+                      >
                         Member
                       </th>
 
-                      <th style={thStyle}>
+                      <th
+                        style={thStyle}
+                      >
                         Family
                       </th>
 
-                      <th style={thStyle}>
+                      <th
+                        style={thStyle}
+                      >
                         Month
                       </th>
 
-                      <th style={thStyle}>
+                      <th
+                        style={thStyle}
+                      >
                         Amount
                       </th>
 
-                      <th style={thStyle}>
+                      <th
+                        style={thStyle}
+                      >
                         Status
                       </th>
                     </tr>
@@ -1068,31 +1183,62 @@ export default function AdminDashboard() {
                   <tbody>
                     {transactions.map(
                       (payment) => (
-                        <tr key={payment.id}>
-                          <td style={tdStyle}>
-                            {payment.member?.name ||
+                        <tr
+                          key={
+                            payment.id
+                          }
+                        >
+                          <td
+                            style={
+                              tdStyle
+                            }
+                          >
+                            {payment
+                              .member
+                              ?.name ||
                               'Unknown'}
                           </td>
 
-                          <td style={tdStyle}>
-                            {payment.member?.family ||
+                          <td
+                            style={
+                              tdStyle
+                            }
+                          >
+                            {payment
+                              .member
+                              ?.family ||
                               '-'}
                           </td>
 
-                          <td style={tdStyle}>
+                          <td
+                            style={
+                              tdStyle
+                            }
+                          >
                             {MONTHS[
-                              payment.month - 1
-                            ] || payment.month}
+                              payment.month -
+                                1
+                            ] ||
+                              payment.month}
                           </td>
 
-                          <td style={tdStyle}>
+                          <td
+                            style={
+                              tdStyle
+                            }
+                          >
                             {Number(
-                              payment.amount || 0
+                              payment.amount ||
+                                0
                             ).toLocaleString()}{' '}
                             RWF
                           </td>
 
-                          <td style={tdStyle}>
+                          <td
+                            style={
+                              tdStyle
+                            }
+                          >
                             <StatusBadge
                               status={
                                 payment.status
@@ -1121,6 +1267,56 @@ export default function AdminDashboard() {
         )}
       </div>
     </main>
+  );
+}
+
+function FamilyStat({
+  icon,
+  value,
+  label,
+}: {
+  icon: string;
+  value: any;
+  label: string;
+}) {
+  return (
+    <div
+      style={{
+        background:
+          'rgba(255,255,255,0.06)',
+        borderRadius: '13px',
+        padding: '12px 6px',
+        textAlign: 'center',
+      }}
+    >
+      <div
+        style={{
+          fontSize: '18px',
+        }}
+      >
+        {icon}
+      </div>
+
+      <div
+        style={{
+          fontWeight: '800',
+          fontSize: '13px',
+          marginTop: '4px',
+        }}
+      >
+        {value}
+      </div>
+
+      <div
+        style={{
+          color: '#94a3b8',
+          fontSize: '10px',
+          marginTop: '2px',
+        }}
+      >
+        {label}
+      </div>
+    </div>
   );
 }
 
@@ -1217,12 +1413,14 @@ function StatusBadge({
 const thStyle: React.CSSProperties = {
   padding: '13px',
   textAlign: 'left',
-  borderBottom: '1px solid #e5e7eb',
+  borderBottom:
+    '1px solid #e5e7eb',
   fontSize: '13px',
 };
 
 const tdStyle: React.CSSProperties = {
   padding: '13px',
-  borderBottom: '1px solid #e5e7eb',
+  borderBottom:
+    '1px solid #e5e7eb',
   fontSize: '14px',
 };
