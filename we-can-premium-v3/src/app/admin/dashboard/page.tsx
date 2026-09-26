@@ -17,719 +17,860 @@ const MONTHS = [
   'December',
 ];
 
-const FAMILY_ICONS: Record<string, string> = {
-  'Gentle Giants Family': '🦍',
-  'Kind Souls Family': '💙',
-  'Little Lights Family': '💡',
-  'Golden Hearts Family': '💛',
-  'Faith Walkers Family': '🙏',
-  'Warriors Family': '⚔️',
-  'Victorious Family': '🏆',
-  'Tigers Family': '🐯',
-  'Anointed Family': '✨',
-  'Solidarity Family': '🤝',
+type Payment = {
+  id: string;
+  member_id: string;
+  month: number;
+  year: number;
+  amount: number;
+  status: string;
+  payment_method?: string;
+  payment_date?: string | null;
+  created_at?: string;
+  member?: {
+    name: string;
+    family: string;
+    phone: string;
+  } | null;
+};
+
+type Family = {
+  name: string;
+  members: number;
+  collected: number;
+  paid: number;
+  pending: number;
+  percent: number;
 };
 
 export default function AdminDashboard() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState('');
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  async function loadDashboard() {
-    setLoading(true);
-    setError('');
+  const years = Array.from(
+    { length: 11 },
+    (_, i) => new Date().getFullYear() - i
+  );
 
+  async function loadDashboard() {
     try {
+      setLoading(true);
+      setError('');
+
       const response = await fetch(
-        '/api/admin/dashboard?year=' + year
+        `/api/admin/dashboard?year=${year}`,
+        {
+          cache: 'no-store',
+        }
       );
 
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Unable to load dashboard');
-        setLoading(false);
+        setError(result.error || 'Failed to load dashboard.');
         return;
       }
 
       setData(result);
-    } catch (err) {
-      setError('Unable to connect to the server');
+    } catch {
+      setError('Failed to connect to the server.');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
   useEffect(() => {
     loadDashboard();
   }, [year]);
 
-  const money = (value: number) =>
-    Number(value || 0).toLocaleString() + ' RWF';
+  async function handlePayment(
+    paymentId: string,
+    action: 'confirm' | 'reject'
+  ) {
+    const question =
+      action === 'confirm'
+        ? 'Confirm this payment? Make sure you have received the money on Serge MTN MoMo.'
+        : 'Reject this payment?';
 
-  const years = Array.from(
-    { length: 7 },
-    (_, i) => new Date().getFullYear() - i
+    if (!window.confirm(question)) {
+      return;
+    }
+
+    setActionLoading(paymentId);
+    setMessage('');
+    setError('');
+
+    try {
+      const response = await fetch('/api/admin/payments', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          payment_id: paymentId,
+          action,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Payment action failed.');
+        return;
+      }
+
+      setMessage(result.message || 'Payment updated successfully.');
+
+      await loadDashboard();
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setActionLoading('');
+    }
+  }
+
+  const transactions: Payment[] = data?.transactions || [];
+
+  const pendingPayments = transactions.filter(
+    (payment) => payment.status === 'pending'
   );
 
-  if (loading) {
-    return (
-      <main style={styles.page}>
-        <div style={styles.centerCard}>
-          <div style={styles.bigIcon}>⏳</div>
-          <h2>Loading WE CAN Dashboard...</h2>
-          <p>Please wait.</p>
-        </div>
-      </main>
-    );
-  }
+  const paidPayments = transactions.filter(
+    (payment) => payment.status === 'paid'
+  );
 
-  if (error) {
-    return (
-      <main style={styles.page}>
-        <div style={styles.centerCard}>
-          <div style={styles.bigIcon}>⚠️</div>
-          <h2>Dashboard Error</h2>
-          <p>{error}</p>
-          <button
-            style={styles.button}
-            onClick={loadDashboard}
-          >
-            Try Again
-          </button>
-        </div>
-      </main>
-    );
-  }
+  const unpaidPayments = transactions.filter(
+    (payment) => payment.status === 'unpaid'
+  );
 
-  const families = data?.families || [];
-  const transactions = data?.transactions || [];
+  const families: Family[] = data?.families || [];
 
   return (
-    <main style={styles.page}>
-      <div style={styles.container}>
-
-        <header style={styles.header}>
-          <div style={styles.brand}>
-            <div style={styles.logo}>WE</div>
-
-            <div>
-              <h1 style={styles.title}>WE CAN</h1>
-              <p style={styles.subtitle}>
-                Admin Dashboard
-              </p>
-            </div>
-          </div>
-
+    <main
+      style={{
+        minHeight: '100vh',
+        background: '#f3f4f6',
+        padding: '30px',
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+        }}
+      >
+        {/* HEADER */}
+        <div
+          style={{
+            background: '#111827',
+            color: 'white',
+            padding: '25px',
+            borderRadius: '18px',
+            marginBottom: '25px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '15px',
+          }}
+        >
           <div>
-            <div style={styles.yearLabel}>YEAR</div>
-
-            <select
-              value={year}
-              onChange={(e) =>
-                setYear(Number(e.target.value))
-              }
-              style={styles.select}
+            <h1
+              style={{
+                margin: 0,
+                fontSize: '28px',
+              }}
             >
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
+              WE CAN Admin Dashboard
+            </h1>
+
+            <p
+              style={{
+                margin: '8px 0 0',
+                color: '#d1d5db',
+              }}
+            >
+              Manage members and confirm payments
+            </p>
           </div>
-        </header>
 
-        <section style={styles.summaryGrid}>
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            style={{
+              padding: '12px 18px',
+              borderRadius: '10px',
+              border: 'none',
+              fontSize: '16px',
+              fontWeight: 'bold',
+            }}
+          >
+            {years.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div style={styles.card}>
-            <div style={styles.cardIcon}>👥</div>
-            <div>
-              <div style={styles.label}>MEMBERS</div>
-              <div style={styles.value}>
-                {data?.members || 0}
-              </div>
+        {/* MESSAGES */}
+        {message && (
+          <div
+            style={{
+              background: '#dcfce7',
+              color: '#166534',
+              padding: '15px',
+              borderRadius: '12px',
+              marginBottom: '20px',
+              fontWeight: 'bold',
+            }}
+          >
+            {message}
+          </div>
+        )}
+
+        {error && (
+          <div
+            style={{
+              background: '#fee2e2',
+              color: '#991b1b',
+              padding: '15px',
+              borderRadius: '12px',
+              marginBottom: '20px',
+              fontWeight: 'bold',
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        {loading && (
+          <div
+            style={{
+              background: 'white',
+              padding: '30px',
+              borderRadius: '15px',
+              textAlign: 'center',
+            }}
+          >
+            Loading dashboard...
+          </div>
+        )}
+
+        {!loading && data && (
+          <>
+            {/* SUMMARY CARDS */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns:
+                  'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '18px',
+                marginBottom: '25px',
+              }}
+            >
+              <SummaryCard
+                title="Members"
+                value={data.members}
+                icon="👥"
+              />
+
+              <SummaryCard
+                title="Collected"
+                value={`${Number(data.collected || 0).toLocaleString()} RWF`}
+                icon="💰"
+              />
+
+              <SummaryCard
+                title="Expected"
+                value={`${Number(data.expected || 0).toLocaleString()} RWF`}
+                icon="🎯"
+              />
+
+              <SummaryCard
+                title="Pending"
+                value={data.pendingCount}
+                icon="⏳"
+              />
+
+              <SummaryCard
+                title="Paid Records"
+                value={paidPayments.length}
+                icon="✅"
+              />
             </div>
-          </div>
 
-          <div style={styles.card}>
-            <div style={styles.cardIcon}>💰</div>
-            <div>
-              <div style={styles.label}>COLLECTED</div>
-              <div style={styles.value}>
-                {money(data?.collected)}
+            {/* PENDING PAYMENTS */}
+            <section
+              style={{
+                background: 'white',
+                borderRadius: '18px',
+                padding: '25px',
+                marginBottom: '25px',
+                boxShadow:
+                  '0 4px 15px rgba(0,0,0,0.06)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '20px',
+                  flexWrap: 'wrap',
+                  gap: '10px',
+                }}
+              >
+                <div>
+                  <h2
+                    style={{
+                      margin: 0,
+                      fontSize: '23px',
+                    }}
+                  >
+                    ⏳ Pending Payments
+                  </h2>
+
+                  <p
+                    style={{
+                      color: '#6b7280',
+                      marginTop: '7px',
+                    }}
+                  >
+                    Check Serge's MTN MoMo before confirming.
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    background:
+                      pendingPayments.length > 0
+                        ? '#fef3c7'
+                        : '#dcfce7',
+                    color:
+                      pendingPayments.length > 0
+                        ? '#92400e'
+                        : '#166534',
+                    padding: '10px 15px',
+                    borderRadius: '10px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {pendingPayments.length} Pending
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div style={styles.card}>
-            <div style={styles.cardIcon}>🎯</div>
-            <div>
-              <div style={styles.label}>EXPECTED</div>
-              <div style={styles.value}>
-                {money(data?.expected)}
-              </div>
-            </div>
-          </div>
+              {pendingPayments.length === 0 ? (
+                <div
+                  style={{
+                    padding: '30px',
+                    textAlign: 'center',
+                    background: '#f9fafb',
+                    borderRadius: '12px',
+                    color: '#6b7280',
+                  }}
+                >
+                  No pending payments for {year}.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    overflowX: 'auto',
+                  }}
+                >
+                  <table
+                    style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      minWidth: '850px',
+                    }}
+                  >
+                    <thead>
+                      <tr
+                        style={{
+                          background: '#f3f4f6',
+                        }}
+                      >
+                        <th style={thStyle}>
+                          Member
+                        </th>
 
-          <div style={styles.card}>
-            <div style={styles.cardIcon}>📊</div>
-            <div>
-              <div style={styles.label}>COMPLETION</div>
-              <div style={styles.value}>
-                {data?.percent || 0}%
-              </div>
-            </div>
-          </div>
+                        <th style={thStyle}>
+                          Phone
+                        </th>
 
-        </section>
+                        <th style={thStyle}>
+                          Family
+                        </th>
 
-        <section style={styles.section}>
-          <div style={styles.sectionHeading}>
-            <div>
-              <h2 style={styles.sectionTitle}>
-                Family Standing
+                        <th style={thStyle}>
+                          Month
+                        </th>
+
+                        <th style={thStyle}>
+                          Amount
+                        </th>
+
+                        <th style={thStyle}>
+                          Status
+                        </th>
+
+                        <th style={thStyle}>
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {pendingPayments.map(
+                        (payment) => (
+                          <tr key={payment.id}>
+                            <td style={tdStyle}>
+                              <strong>
+                                {payment.member?.name ||
+                                  'Unknown'}
+                              </strong>
+                            </td>
+
+                            <td style={tdStyle}>
+                              {payment.member?.phone ||
+                                '-'}
+                            </td>
+
+                            <td style={tdStyle}>
+                              {payment.member?.family ||
+                                '-'}
+                            </td>
+
+                            <td style={tdStyle}>
+                              {MONTHS[
+                                payment.month - 1
+                              ] || payment.month}
+                            </td>
+
+                            <td style={tdStyle}>
+                              <strong>
+                                {Number(
+                                  payment.amount || 0
+                                ).toLocaleString()}{' '}
+                                RWF
+                              </strong>
+                            </td>
+
+                            <td style={tdStyle}>
+                              <span
+                                style={{
+                                  background:
+                                    '#fef3c7',
+                                  color: '#92400e',
+                                  padding:
+                                    '6px 10px',
+                                  borderRadius:
+                                    '20px',
+                                  fontSize:
+                                    '13px',
+                                  fontWeight:
+                                    'bold',
+                                }}
+                              >
+                                PENDING
+                              </span>
+                            </td>
+
+                            <td style={tdStyle}>
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  gap: '8px',
+                                }}
+                              >
+                                <button
+                                  onClick={() =>
+                                    handlePayment(
+                                      payment.id,
+                                      'confirm'
+                                    )
+                                  }
+                                  disabled={
+                                    actionLoading ===
+                                    payment.id
+                                  }
+                                  style={{
+                                    background:
+                                      '#16a34a',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding:
+                                      '10px 14px',
+                                    borderRadius:
+                                      '8px',
+                                    cursor:
+                                      'pointer',
+                                    fontWeight:
+                                      'bold',
+                                  }}
+                                >
+                                  {actionLoading ===
+                                  payment.id
+                                    ? '...'
+                                    : '✓ Confirm'}
+                                </button>
+
+                                <button
+                                  onClick={() =>
+                                    handlePayment(
+                                      payment.id,
+                                      'reject'
+                                    )
+                                  }
+                                  disabled={
+                                    actionLoading ===
+                                    payment.id
+                                  }
+                                  style={{
+                                    background:
+                                      '#dc2626',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding:
+                                      '10px 14px',
+                                    borderRadius:
+                                      '8px',
+                                    cursor:
+                                      'pointer',
+                                    fontWeight:
+                                      'bold',
+                                  }}
+                                >
+                                  {actionLoading ===
+                                  payment.id
+                                    ? '...'
+                                    : '✕ Reject'}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+
+            {/* FAMILY STANDING */}
+            <section
+              style={{
+                background: 'white',
+                borderRadius: '18px',
+                padding: '25px',
+                marginBottom: '25px',
+              }}
+            >
+              <h2
+                style={{
+                  marginTop: 0,
+                }}
+              >
+                🏆 Family Standing
               </h2>
 
-              <p style={styles.sectionSubtitle}>
-                Contribution progress for {year}
-              </p>
-            </div>
-          </div>
-
-          <div style={styles.familyGrid}>
-
-            {families.map((family: any) => {
-
-              const percent = Number(
-                family.percent || 0
-              );
-
-              let progressColor = '#dc2626';
-
-              if (percent >= 80) {
-                progressColor = '#16a34a';
-              } else if (percent >= 50) {
-                progressColor = '#f59e0b';
-              }
-
-              return (
-                <div
-                  key={family.name}
-                  style={styles.familyCard}
-                >
-
-                  <div style={styles.familyHeader}>
-
-                    <div style={styles.familyIcon}>
-                      {FAMILY_ICONS[family.name] || '👥'}
-                    </div>
-
-                    <div style={styles.familyInfo}>
-                      <h3 style={styles.familyName}>
-                        {family.name}
-                      </h3>
-
-                      <p style={styles.familySmall}>
-                        {Math.round(percent)}% complete
-                      </p>
-                    </div>
-
-                    <div
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns:
+                    'repeat(auto-fit, minmax(260px, 1fr))',
+                  gap: '15px',
+                }}
+              >
+                {families.map((family) => (
+                  <div
+                    key={family.name}
+                    style={{
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '14px',
+                      padding: '18px',
+                    }}
+                  >
+                    <h3
                       style={{
-                        ...styles.percentCircle,
-                        borderColor: progressColor,
+                        marginTop: 0,
+                        fontSize: '17px',
                       }}
                     >
-                      {Math.round(percent)}%
-                    </div>
+                      {family.name}
+                    </h3>
 
-                  </div>
+                    <p>
+                      👥 Members:{' '}
+                      <strong>
+                        {family.members}
+                      </strong>
+                    </p>
 
-                  <div style={styles.progressBackground}>
+                    <p>
+                      💰 Collected:{' '}
+                      <strong>
+                        {Number(
+                          family.collected || 0
+                        ).toLocaleString()}{' '}
+                        RWF
+                      </strong>
+                    </p>
+
+                    <p>
+                      ⏳ Pending:{' '}
+                      <strong>
+                        {family.pending}
+                      </strong>
+                    </p>
+
                     <div
                       style={{
-                        ...styles.progress,
-                        width:
-                          Math.min(percent, 100) + '%',
-                        background:
-                          progressColor,
+                        height: '10px',
+                        background: '#e5e7eb',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
                       }}
-                    />
+                    >
+                      <div
+                        style={{
+                          width: `${family.percent}%`,
+                          height: '100%',
+                          background: '#16a34a',
+                        }}
+                      />
+                    </div>
+
+                    <p
+                      style={{
+                        marginBottom: 0,
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {family.percent}% collected
+                    </p>
                   </div>
+                ))}
+              </div>
+            </section>
 
-                  <div style={styles.stats}>
-
-                    <div>
-                      <span style={styles.statLabel}>
-                        Paid
-                      </span>
-
-                      <strong style={styles.statValue}>
-                        {family.paid || 0}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span style={styles.statLabel}>
-                        Pending
-                      </span>
-
-                      <strong style={styles.statValue}>
-                        {family.pending || 0}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span style={styles.statLabel}>
-                        Collected
-                      </span>
-
-                      <strong style={styles.statValue}>
-                        {money(family.collected)}
-                      </strong>
-                    </div>
-
-                  </div>
-
-                </div>
-              );
-            })}
-
-          </div>
-        </section>
-
-        <section style={styles.section}>
-
-          <div style={styles.sectionHeading}>
-            <div>
-              <h2 style={styles.sectionTitle}>
-                Payment Records
+            {/* ALL PAYMENTS */}
+            <section
+              style={{
+                background: 'white',
+                borderRadius: '18px',
+                padding: '25px',
+                marginBottom: '25px',
+              }}
+            >
+              <h2
+                style={{
+                  marginTop: 0,
+                }}
+              >
+                📋 All Payment Records
               </h2>
 
-              <p style={styles.sectionSubtitle}>
-                Payment activity for {year}
-              </p>
-            </div>
-          </div>
-
-          {transactions.length === 0 ? (
-
-            <div style={styles.emptyCard}>
-              <div style={styles.bigIcon}>💳</div>
-
-              <h3>No payment records yet</h3>
-
-              <p>
-                Payment requests will appear here when
-                members submit them.
-              </p>
-            </div>
-
-          ) : (
-
-            <div style={styles.tableCard}>
-              <div style={styles.tableScroll}>
-
-                <table style={styles.table}>
-
+              <div
+                style={{
+                  overflowX: 'auto',
+                }}
+              >
+                <table
+                  style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    minWidth: '800px',
+                  }}
+                >
                   <thead>
-                    <tr>
-                      <th style={styles.th}>Member</th>
-                      <th style={styles.th}>Family</th>
-                      <th style={styles.th}>Month</th>
-                      <th style={styles.th}>Amount</th>
-                      <th style={styles.th}>Status</th>
+                    <tr
+                      style={{
+                        background: '#f3f4f6',
+                      }}
+                    >
+                      <th style={thStyle}>
+                        Member
+                      </th>
+                      <th style={thStyle}>
+                        Family
+                      </th>
+                      <th style={thStyle}>
+                        Month
+                      </th>
+                      <th style={thStyle}>
+                        Amount
+                      </th>
+                      <th style={thStyle}>
+                        Status
+                      </th>
                     </tr>
                   </thead>
 
                   <tbody>
-
-                    {transactions.map((payment: any) => (
-
-                      <tr key={payment.id}>
-
-                        <td style={styles.td}>
-                          <strong>
+                    {transactions.map(
+                      (payment) => (
+                        <tr key={payment.id}>
+                          <td style={tdStyle}>
                             {payment.member?.name ||
                               'Unknown'}
-                          </strong>
-                        </td>
+                          </td>
 
-                        <td style={styles.td}>
-                          {payment.member?.family || '—'}
-                        </td>
+                          <td style={tdStyle}>
+                            {payment.member?.family ||
+                              '-'}
+                          </td>
 
-                        <td style={styles.td}>
-                          {MONTHS[payment.month - 1] ||
-                            '—'}
-                        </td>
+                          <td style={tdStyle}>
+                            {MONTHS[
+                              payment.month - 1
+                            ] || payment.month}
+                          </td>
 
-                        <td style={styles.td}>
-                          {money(payment.amount)}
-                        </td>
+                          <td style={tdStyle}>
+                            {Number(
+                              payment.amount || 0
+                            ).toLocaleString()}{' '}
+                            RWF
+                          </td>
 
-                        <td style={styles.td}>
-
-                          <span
-                            style={{
-                              ...styles.status,
-                              ...(payment.status === 'paid'
-                                ? styles.paid
-                                : payment.status ===
-                                  'pending'
-                                ? styles.pending
-                                : styles.unpaid),
-                            }}
-                          >
-                            {String(
-                              payment.status || 'unpaid'
-                            ).toUpperCase()}
-                          </span>
-
-                        </td>
-
-                      </tr>
-
-                    ))}
-
+                          <td style={tdStyle}>
+                            <StatusBadge
+                              status={
+                                payment.status
+                              }
+                            />
+                          </td>
+                        </tr>
+                      )
+                    )}
                   </tbody>
-
                 </table>
-
               </div>
+            </section>
+
+            {/* FOOTER */}
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '20px',
+                color: '#6b7280',
+              }}
+            >
+              ✨ God is Good ✨
             </div>
-
-          )}
-
-        </section>
-
-        <footer style={styles.footer}>
-          <div>✨ God is Good ✨</div>
-          <small>
-            WE CAN Community Contribution System
-          </small>
-        </footer>
-
+          </>
+        )}
       </div>
     </main>
   );
 }
 
-const styles: any = {
+function SummaryCard({
+  title,
+  value,
+  icon,
+}: {
+  title: string;
+  value: any;
+  icon: string;
+}) {
+  return (
+    <div
+      style={{
+        background: 'white',
+        borderRadius: '16px',
+        padding: '22px',
+        boxShadow:
+          '0 4px 15px rgba(0,0,0,0.05)',
+      }}
+    >
+      <div
+        style={{
+          fontSize: '30px',
+          marginBottom: '10px',
+        }}
+      >
+        {icon}
+      </div>
 
-  page: {
-    minHeight: '100vh',
-    background: '#f4f7fb',
-    padding: '24px',
-    fontFamily: 'Arial, Helvetica, sans-serif',
-  },
+      <div
+        style={{
+          color: '#6b7280',
+          fontSize: '14px',
+        }}
+      >
+        {title}
+      </div>
 
-  container: {
-    maxWidth: '1400px',
-    margin: '0 auto',
-  },
+      <div
+        style={{
+          fontSize: '24px',
+          fontWeight: 'bold',
+          marginTop: '5px',
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
 
-  header: {
-    background: '#ffffff',
-    borderRadius: '20px',
-    padding: '24px 28px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    boxShadow: '0 8px 30px rgba(0,0,0,0.06)',
-    marginBottom: '24px',
-  },
+function StatusBadge({
+  status,
+}: {
+  status: string;
+}) {
+  let background = '#e5e7eb';
+  let color = '#374151';
 
-  brand: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '14px',
-  },
+  if (status === 'paid') {
+    background = '#dcfce7';
+    color = '#166534';
+  }
 
-  logo: {
-    width: '52px',
-    height: '52px',
-    borderRadius: '14px',
-    background: '#111827',
-    color: '#ffffff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 800,
-  },
+  if (status === 'pending') {
+    background = '#fef3c7';
+    color = '#92400e';
+  }
 
-  title: {
-    margin: 0,
-    fontSize: '26px',
-    fontWeight: 800,
-    color: '#111827',
-  },
+  if (status === 'unpaid') {
+    background = '#fee2e2';
+    color = '#991b1b';
+  }
 
-  subtitle: {
-    margin: '4px 0 0',
-    color: '#6b7280',
-  },
+  return (
+    <span
+      style={{
+        background,
+        color,
+        padding: '6px 10px',
+        borderRadius: '20px',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+      }}
+    >
+      {status}
+    </span>
+  );
+}
 
-  yearLabel: {
-    fontSize: '11px',
-    fontWeight: 800,
-    color: '#6b7280',
-    marginBottom: '5px',
-  },
+const thStyle: React.CSSProperties = {
+  padding: '13px',
+  textAlign: 'left',
+  borderBottom: '1px solid #e5e7eb',
+  fontSize: '13px',
+};
 
-  select: {
-    padding: '10px 14px',
-    borderRadius: '10px',
-    border: '1px solid #d1d5db',
-    background: '#ffffff',
-    fontWeight: 700,
-  },
-
-  summaryGrid: {
-    display: 'grid',
-    gridTemplateColumns:
-      'repeat(auto-fit,minmax(220px,1fr))',
-    gap: '16px',
-    marginBottom: '30px',
-  },
-
-  card: {
-    background: '#ffffff',
-    borderRadius: '18px',
-    padding: '22px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-    boxShadow: '0 6px 24px rgba(0,0,0,0.05)',
-  },
-
-  cardIcon: {
-    width: '48px',
-    height: '48px',
-    borderRadius: '14px',
-    background: '#f3f4f6',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '22px',
-  },
-
-  label: {
-    fontSize: '11px',
-    fontWeight: 800,
-    color: '#6b7280',
-  },
-
-  value: {
-    marginTop: '5px',
-    fontSize: '21px',
-    fontWeight: 800,
-    color: '#111827',
-  },
-
-  section: {
-    marginBottom: '30px',
-  },
-
-  sectionHeading: {
-    marginBottom: '16px',
-  },
-
-  sectionTitle: {
-    margin: 0,
-    fontSize: '22px',
-    color: '#111827',
-  },
-
-  sectionSubtitle: {
-    margin: '5px 0 0',
-    color: '#6b7280',
-  },
-
-  familyGrid: {
-    display: 'grid',
-    gridTemplateColumns:
-      'repeat(auto-fit,minmax(300px,1fr))',
-    gap: '18px',
-  },
-
-  familyCard: {
-    background: '#ffffff',
-    borderRadius: '20px',
-    padding: '20px',
-    boxShadow: '0 6px 24px rgba(0,0,0,0.05)',
-  },
-
-  familyHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-  },
-
-  familyIcon: {
-    width: '48px',
-    height: '48px',
-    borderRadius: '14px',
-    background: '#f3f4f6',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '23px',
-  },
-
-  familyInfo: {
-    flex: 1,
-  },
-
-  familyName: {
-    margin: 0,
-    fontSize: '15px',
-    color: '#111827',
-  },
-
-  familySmall: {
-    margin: '4px 0 0',
-    fontSize: '12px',
-    color: '#6b7280',
-  },
-
-  percentCircle: {
-    width: '50px',
-    height: '50px',
-    borderRadius: '50%',
-    border: '4px solid',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 800,
-    fontSize: '12px',
-  },
-
-  progressBackground: {
-    height: '9px',
-    background: '#e5e7eb',
-    borderRadius: '20px',
-    overflow: 'hidden',
-    marginTop: '18px',
-  },
-
-  progress: {
-    height: '100%',
-    borderRadius: '20px',
-  },
-
-  stats: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr 1fr',
-    gap: '10px',
-    marginTop: '18px',
-  },
-
-  statLabel: {
-    display: 'block',
-    fontSize: '11px',
-    color: '#6b7280',
-  },
-
-  statValue: {
-    display: 'block',
-    marginTop: '4px',
-    fontSize: '13px',
-    color: '#111827',
-  },
-
-  tableCard: {
-    background: '#ffffff',
-    borderRadius: '20px',
-    overflow: 'hidden',
-    boxShadow: '0 6px 24px rgba(0,0,0,0.05)',
-  },
-
-  tableScroll: {
-    overflowX: 'auto',
-  },
-
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    minWidth: '700px',
-  },
-
-  th: {
-    textAlign: 'left',
-    padding: '15px 18px',
-    background: '#f9fafb',
-    color: '#6b7280',
-    fontSize: '11px',
-  },
-
-  td: {
-    padding: '16px 18px',
-    borderTop: '1px solid #f0f0f0',
-    fontSize: '13px',
-    color: '#374151',
-  },
-
-  status: {
-    display: 'inline-block',
-    padding: '6px 10px',
-    borderRadius: '999px',
-    fontSize: '10px',
-    fontWeight: 800,
-  },
-
-  paid: {
-    background: '#dcfce7',
-    color: '#166534',
-  },
-
-  pending: {
-    background: '#fef3c7',
-    color: '#92400e',
-  },
-
-  unpaid: {
-    background: '#fee2e2',
-    color: '#991b1b',
-  },
-
-  emptyCard: {
-    background: '#ffffff',
-    borderRadius: '20px',
-    padding: '50px',
-    textAlign: 'center',
-  },
-
-  centerCard: {
-    maxWidth: '500px',
-    margin: '100px auto',
-    background: '#ffffff',
-    borderRadius: '20px',
-    padding: '50px',
-    textAlign: 'center',
-  },
-
-  bigIcon: {
-    fontSize: '40px',
-    marginBottom: '15px',
-  },
-
-  button: {
-    marginTop: '15px',
-    padding: '12px 20px',
-    border: 0,
-    borderRadius: '10px',
-    background: '#111827',
-    color: '#ffffff',
-    fontWeight: 700,
-    cursor: 'pointer',
-  },
-
-  footer: {
-    textAlign: 'center',
-    padding: '30px 10px',
-    color: '#6b7280',
-  },
+const tdStyle: React.CSSProperties = {
+  padding: '13px',
+  borderBottom: '1px solid #e5e7eb',
+  fontSize: '14px',
 };
