@@ -1,4 +1,3 @@
-```tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -28,7 +27,11 @@ export default function Dashboard() {
     const saved = localStorage.getItem('wecan_member');
 
     if (saved) {
-      setMember(JSON.parse(saved));
+      try {
+        setMember(JSON.parse(saved));
+      } catch {
+        setMember(null);
+      }
     }
   }, []);
 
@@ -41,314 +44,346 @@ export default function Dashboard() {
         '&year=' +
         year
     )
-      .then((r) => r.json())
-      .then((j) => setPayments(j.data || []))
-      .catch(() => setPayments([]));
+      .then((response) => response.json())
+      .then((data) => {
+        setPayments(data.data || []);
+      })
+      .catch(() => {
+        setPayments([]);
+      });
   }, [member, year]);
 
   function toggleMonth(month: number) {
-    if (selected.includes(month)) {
-      setSelected(
-        selected.filter((m) => m !== month)
-      );
-    } else {
-      setSelected(
-        [...selected, month].sort(
-          (a, b) => a - b
-        )
-      );
-    }
-  }
+    setSelected((current) => {
+      if (current.includes(month)) {
+        return current.filter((m) => m !== month);
+      }
 
-  function status(month: number) {
-    const payment = payments.find(
-      (p) =>
-        p.month === month &&
-        p.year === year
-    );
-
-    return payment?.status || 'unpaid';
+      return [...current, month].sort((a, b) => a - b);
+    });
   }
 
   const total = selected.length * 1000;
 
-  const years = Array.from(
-    { length: 7 },
-    (_, i) =>
-      new Date().getFullYear() - i
-  );
-
   if (!member) {
     return (
-      <main style={styles.page}>
-        <div style={styles.card}>
-          <h2>Please login first.</h2>
+      <main
+        style={{
+          minHeight: '100vh',
+          padding: '40px 20px',
+          background: '#f5f7fb',
+          fontFamily: 'Arial, sans-serif',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 600,
+            margin: '80px auto',
+            background: '#ffffff',
+            padding: 30,
+            borderRadius: 16,
+            textAlign: 'center',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          }}
+        >
+          <h1>WE CAN</h1>
+          <p>Member information was not found.</p>
+          <p>Please return to the member login page.</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main style={styles.page}>
-      <div style={styles.container}>
+    <main
+      style={{
+        minHeight: '100vh',
+        background: '#f5f7fb',
+        padding: '20px',
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1100,
+          margin: '0 auto',
+        }}
+      >
+        <header
+          style={{
+            background: '#111827',
+            color: '#ffffff',
+            padding: '24px',
+            borderRadius: 16,
+            marginBottom: 20,
+          }}
+        >
+          <h1 style={{ margin: 0 }}>WE CAN Member Dashboard</h1>
 
-        <div style={styles.header}>
-          <div>
-            <h1>Hello, {member.name} 👋</h1>
-            <p>WE CAN Community Contribution</p>
+          <p style={{ marginBottom: 0 }}>
+            Welcome, <strong>{member.name}</strong>
+          </p>
+
+          <p style={{ marginBottom: 0 }}>
+            Family: <strong>{member.family}</strong>
+          </p>
+        </header>
+
+        <section
+          style={{
+            background: '#ffffff',
+            padding: 24,
+            borderRadius: 16,
+            marginBottom: 20,
+            boxShadow: '0 3px 15px rgba(0,0,0,0.06)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 15,
+              flexWrap: 'wrap',
+              marginBottom: 20,
+            }}
+          >
+            <h2 style={{ margin: 0 }}>Make Contribution</h2>
+
+            <select
+              value={year}
+              onChange={(e) => {
+                setYear(Number(e.target.value));
+                setSelected([]);
+              }}
+              style={{
+                padding: '10px 14px',
+                borderRadius: 8,
+                border: '1px solid #d1d5db',
+                fontSize: 16,
+              }}
+            >
+              {Array.from({ length: 10 }, (_, i) => {
+                const y = new Date().getFullYear() - i;
+
+                return (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
-          <select
-            value={year}
-            onChange={(e) =>
-              setYear(Number(e.target.value))
-            }
-            style={styles.select}
+          <div
+            style={{
+              background: '#fff7ed',
+              border: '1px solid #fed7aa',
+              padding: 18,
+              borderRadius: 12,
+              marginBottom: 20,
+            }}
           >
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </div>
+            <h3 style={{ marginTop: 0 }}>MTN MoMo Payment</h3>
 
-        <div style={styles.paymentBox}>
-          <h2>📱 MTN MoMo Payment</h2>
+            <p>
+              <strong>Recipient:</strong> Serge
+            </p>
 
-          <p>Send your contribution to:</p>
+            <p>
+              <strong>MTN MoMo Number:</strong> 0794077626
+            </p>
 
-          <p>
-            <strong>Recipient:</strong> Serge
-          </p>
+            <p>
+              <strong>MoMo Code:</strong> 1303352
+            </p>
 
-          <p>
-            <strong>MTN MoMo:</strong> 0794077626
-          </p>
+            <p style={{ marginBottom: 0 }}>
+              Send <strong>1,000 RWF per month</strong>.
+            </p>
+          </div>
 
-          <p>
-            <strong>MoMo Code:</strong> 1303352
-          </p>
-        </div>
+          <h3>Select Month(s)</h3>
 
-        <div style={styles.card}>
-          <h2>Select Months</h2>
-
-          <p>
-            Each month costs exactly{' '}
-            <strong>1,000 RWF</strong>.
-          </p>
-
-          <div style={styles.months}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns:
+                'repeat(auto-fit, minmax(140px, 1fr))',
+              gap: 12,
+            }}
+          >
             {MONTHS.map((month, index) => {
-              const number = index + 1;
-              const currentStatus =
-                status(number);
+              const monthNumber = index + 1;
+
+              const payment = payments.find(
+                (p) => p.month === monthNumber
+              );
 
               const isSelected =
-                selected.includes(number);
+                selected.includes(monthNumber);
+
+              const isPaid = payment?.status === 'paid';
+              const isPending =
+                payment?.status === 'pending';
 
               return (
                 <button
                   key={month}
                   type="button"
-                  disabled={
-                    currentStatus === 'paid' ||
-                    currentStatus === 'pending'
-                  }
+                  disabled={isPaid || isPending}
                   onClick={() =>
-                    toggleMonth(number)
+                    toggleMonth(monthNumber)
                   }
                   style={{
-                    ...styles.month,
-                    ...(isSelected
-                      ? styles.selected
-                      : {}),
+                    padding: '16px 10px',
+                    borderRadius: 10,
+                    border: '1px solid #d1d5db',
+                    cursor:
+                      isPaid || isPending
+                        ? 'not-allowed'
+                        : 'pointer',
+                    background: isPaid
+                      ? '#dcfce7'
+                      : isPending
+                      ? '#fef3c7'
+                      : isSelected
+                      ? '#dbeafe'
+                      : '#ffffff',
+                    color: '#111827',
+                    fontWeight: 600,
                   }}
                 >
                   {month}
 
-                  <small>
-                    {currentStatus === 'paid'
+                  <div
+                    style={{
+                      fontSize: 12,
+                      marginTop: 6,
+                    }}
+                  >
+                    {isPaid
                       ? 'PAID'
-                      : currentStatus ===
-                        'pending'
+                      : isPending
                       ? 'PENDING'
                       : '1,000 RWF'}
-                  </small>
+                  </div>
                 </button>
               );
             })}
           </div>
-        </div>
 
-        <div style={styles.total}>
-          <div>
-            <small>SELECTED MONTHS</small>
-            <h2>{selected.length}</h2>
+          <div
+            style={{
+              marginTop: 25,
+              padding: 20,
+              background: '#f3f4f6',
+              borderRadius: 12,
+            }}
+          >
+            <p>
+              Selected months:{' '}
+              <strong>{selected.length}</strong>
+            </p>
+
+            <p style={{ fontSize: 22 }}>
+              Total:{' '}
+              <strong>{total.toLocaleString()} RWF</strong>
+            </p>
+
+            <button
+              type="button"
+              disabled={selected.length === 0}
+              style={{
+                width: '100%',
+                padding: 15,
+                border: 'none',
+                borderRadius: 10,
+                background:
+                  selected.length === 0
+                    ? '#9ca3af'
+                    : '#16a34a',
+                color: '#ffffff',
+                fontSize: 17,
+                fontWeight: 700,
+                cursor:
+                  selected.length === 0
+                    ? 'not-allowed'
+                    : 'pointer',
+              }}
+            >
+              I HAVE PAID
+            </button>
           </div>
+        </section>
 
-          <div style={styles.totalRight}>
-            <small>TOTAL</small>
-            <h2>
-              {total.toLocaleString()} RWF
-            </h2>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          disabled={selected.length === 0}
-          style={styles.payButton}
+        <section
+          style={{
+            background: '#ffffff',
+            padding: 24,
+            borderRadius: 16,
+            marginBottom: 20,
+            boxShadow: '0 3px 15px rgba(0,0,0,0.06)',
+          }}
         >
-          I HAVE PAID
-        </button>
-
-        <div style={styles.card}>
-          <h2>
-            Payment History — {year}
-          </h2>
+          <h2>Payment History</h2>
 
           {payments.length === 0 ? (
-            <p>No payments recorded yet.</p>
+            <p>No payment records for {year}.</p>
           ) : (
-            payments.map((payment) => (
-              <div
-                key={payment.id}
-                style={styles.history}
+            <div style={{ overflowX: 'auto' }}>
+              <table
+                style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                }}
               >
-                <strong>
-                  {MONTHS[payment.month - 1]}
-                </strong>
+                <thead>
+                  <tr>
+                    <th style={{ padding: 12, textAlign: 'left' }}>
+                      Month
+                    </th>
+                    <th style={{ padding: 12, textAlign: 'left' }}>
+                      Amount
+                    </th>
+                    <th style={{ padding: 12, textAlign: 'left' }}>
+                      Status
+                    </th>
+                  </tr>
+                </thead>
 
-                <span>
-                  {Number(
-                    payment.amount
-                  ).toLocaleString()}{' '}
-                  RWF
-                </span>
+                <tbody>
+                  {payments.map((payment) => (
+                    <tr key={payment.id}>
+                      <td style={{ padding: 12 }}>
+                        {MONTHS[payment.month - 1]}
+                      </td>
 
-                <strong>
-                  {String(
-                    payment.status
-                  ).toUpperCase()}
-                </strong>
-              </div>
-            ))
+                      <td style={{ padding: 12 }}>
+                        {Number(payment.amount).toLocaleString()} RWF
+                      </td>
+
+                      <td style={{ padding: 12 }}>
+                        {payment.status.toUpperCase()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
+        </section>
 
-        <footer style={styles.footer}>
+        <footer
+          style={{
+            textAlign: 'center',
+            padding: 25,
+            color: '#6b7280',
+          }}
+        >
           ✨ God is Good ✨
         </footer>
-
       </div>
     </main>
   );
 }
-
-const styles: any = {
-  page: {
-    minHeight: '100vh',
-    background: '#f4f7fb',
-    padding: '24px',
-    fontFamily: 'Arial',
-  },
-
-  container: {
-    maxWidth: '950px',
-    margin: '0 auto',
-  },
-
-  header: {
-    background: '#ffffff',
-    padding: '24px',
-    borderRadius: '18px',
-    marginBottom: '20px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  select: {
-    padding: '10px',
-    borderRadius: '8px',
-  },
-
-  paymentBox: {
-    background: '#111827',
-    color: '#ffffff',
-    padding: '25px',
-    borderRadius: '18px',
-    marginBottom: '20px',
-  },
-
-  card: {
-    background: '#ffffff',
-    padding: '24px',
-    borderRadius: '18px',
-    marginBottom: '20px',
-  },
-
-  months: {
-    display: 'grid',
-    gridTemplateColumns:
-      'repeat(auto-fit,minmax(180px,1fr))',
-    gap: '10px',
-  },
-
-  month: {
-    padding: '15px',
-    borderRadius: '10px',
-    border: '2px solid #e5e7eb',
-    background: '#ffffff',
-    cursor: 'pointer',
-    fontWeight: 700,
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-
-  selected: {
-    background: '#dcfce7',
-    borderColor: '#16a34a',
-  },
-
-  total: {
-    background: '#ffffff',
-    padding: '20px',
-    borderRadius: '18px',
-    marginBottom: '15px',
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-
-  totalRight: {
-    textAlign: 'right',
-  },
-
-  payButton: {
-    width: '100%',
-    padding: '16px',
-    border: 'none',
-    borderRadius: '12px',
-    background: '#16a34a',
-    color: '#ffffff',
-    fontWeight: 800,
-    fontSize: '16px',
-    marginBottom: '20px',
-  },
-
-  history: {
-    padding: '14px 0',
-    borderBottom: '1px solid #eeeeee',
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-
-  footer: {
-    textAlign: 'center',
-    padding: '30px',
-    color: '#6b7280',
-  },
-};
-```
