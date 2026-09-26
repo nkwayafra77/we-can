@@ -1,0 +1,2 @@
+import {NextRequest,NextResponse} from 'next/server';import {supabaseAdmin} from '@/lib/supabaseAdmin';
+export async function GET(req:NextRequest){const p=req.nextUrl.searchParams;let q=supabaseAdmin.from('payments').select('*,member:members(name,family,phone)').order('year',{ascending:false}).order('month',{ascending:false});if(p.get('member_id'))q=q.eq('member_id',p.get('member_id')!);if(p.get('year'))q=q.eq('year',Number(p.get('year')));const {data,error}=await q;return error?NextResponse.json({error:error.message},{status:400}):NextResponse.json({data:data||[]})}

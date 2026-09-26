@@ -1,0 +1,1 @@
+export default function StarsProgress({percent}:{percent:number}){const n=Math.max(0,Math.min(10,Math.round(percent/10)));return <div><div className="stars">{'★'.repeat(n)}{'☆'.repeat(10-n)}</div><small>{Math.round(percent)}% collected</small></div>}
