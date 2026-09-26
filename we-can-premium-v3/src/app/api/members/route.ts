@@ -1,3 +1,65 @@
-import {NextRequest,NextResponse} from 'next/server';import {supabaseAdmin} from '@/lib/supabaseAdmin';import {FAMILIES} from '@/lib/config';
-export async function GET(req:NextRequest){const phone=req.nextUrl.searchParams.get('phone');if(!phone)return NextResponse.json({error:'Phone is required'},{status:400});const {data,error}=await supabaseAdmin.from('members').select('id,name,phone,email,gender,family,email_notifications').eq('phone',phone.replace(/\s/g,'')).maybeSingle();if(error||!data)return NextResponse.json({error:'Member not found'},{status:404});return NextResponse.json({member:data})}
-export async function POST(req:NextRequest){const b=await req.json();if(!b.name||!b.phone||!b.gender||!b.family)return NextResponse.json({error:'Name, phone, gender and family are required'},{status:400});if(!FAMILIES.includes(b.family))return NextResponse.json({error:'Invalid family'},{status:400});const {data,error}=await supabaseAdmin.from('members').insert({name:b.name,phone:b.phone.replace(/\s/g,''),gender:b.gender,family:b.family,email:b.email||null,email_notifications:!!b.email_notifications}).select().single();if(error)return NextResponse.json({error:error.message},{status:400});return NextResponse.json(data,{status:201})}
+import {NextRequest,NextResponse} from 'next/server';
+import {supabaseAdmin} from '@/lib/supabaseAdmin';
+import {FAMILIES} from '@/lib/config';
+
+export async function GET(req:NextRequest){
+  const phone=req.nextUrl.searchParams.get('phone');
+
+  if(!phone)
+    return NextResponse.json({error:'Phone is required'},{status:400});
+
+  const {data,error}=await supabaseAdmin
+    .from('members')
+    .select('id,name,phone,email,gender,family,email_notifications')
+    .eq('phone',phone.replace(/\s/g,''))
+    .maybeSingle();
+
+  if(error||!data)
+    return NextResponse.json({error:'Member not found'},{status:404});
+
+  return NextResponse.json({member:data});
+}
+
+export async function POST(req:NextRequest){
+  const b=await req.json();
+
+  if(!b.name||!b.phone||!b.gender||!b.family)
+    return NextResponse.json(
+      {error:'Name, phone, gender and family are required'},
+      {status:400}
+    );
+
+  if(!FAMILIES.includes(b.family))
+    return NextResponse.json(
+      {error:'Invalid family'},
+      {status:400}
+    );
+
+  const {data,error}=await supabaseAdmin
+    .from('members')
+    .insert({
+      name:b.name,
+      phone:b.phone.replace(/\s/g,''),
+      gender:b.gender,
+      family:b.family,
+      email:b.email||null,
+      email_notifications:!!b.email_notifications
+    })
+    .select()
+    .single();
+
+  if(error){
+    return NextResponse.json(
+      {
+        error:error.message,
+        details:error.details,
+        hint:error.hint,
+        code:error.code,
+        cause:error.cause?.message||null
+      },
+      {status:400}
+    );
+  }
+
+  return NextResponse.json(data,{status:201});
+}
