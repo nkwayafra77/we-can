@@ -6,7 +6,10 @@ export async function GET(req:NextRequest){
   const phone=req.nextUrl.searchParams.get('phone');
 
   if(!phone)
-    return NextResponse.json({error:'Phone is required'},{status:400});
+    return NextResponse.json(
+      {error:'Phone is required'},
+      {status:400}
+    );
 
   const {data,error}=await supabaseAdmin
     .from('members')
@@ -15,7 +18,10 @@ export async function GET(req:NextRequest){
     .maybeSingle();
 
   if(error||!data)
-    return NextResponse.json({error:'Member not found'},{status:404});
+    return NextResponse.json(
+      {error:'Member not found'},
+      {status:404}
+    );
 
   return NextResponse.json({member:data});
 }
@@ -55,7 +61,7 @@ export async function POST(req:NextRequest){
         details:error.details,
         hint:error.hint,
         code:error.code,
-        cause:error.cause?.message||null
+        cause:String(error.cause||'')
       },
       {status:400}
     );
