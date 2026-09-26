@@ -54,10 +54,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (
-      !Array.isArray(months) ||
-      months.length === 0
-    ) {
+    if (!Array.isArray(months) || months.length === 0) {
       return NextResponse.json(
         { error: 'Please select at least one month' },
         { status: 400 }
@@ -94,15 +91,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const uniqueMonths = [...new Set(validMonths)];
+    const uniqueMonths = Array.from(
+      new Set(validMonths)
+    );
 
-    const { data: existing, error: existingError } =
-      await supabaseAdmin
-        .from('payments')
-        .select('month,status')
-        .eq('member_id', memberId)
-        .eq('year', year)
-        .in('month', uniqueMonths);
+    const {
+      data: existing,
+      error: existingError,
+    } = await supabaseAdmin
+      .from('payments')
+      .select('month,status')
+      .eq('member_id', memberId)
+      .eq('year', year)
+      .in('month', uniqueMonths);
 
     if (existingError) {
       return NextResponse.json(
@@ -150,11 +151,13 @@ export async function POST(req: NextRequest) {
       payment_method: 'mtn_momo',
     }));
 
-    const { data: created, error: insertError } =
-      await supabaseAdmin
-        .from('payments')
-        .insert(records)
-        .select();
+    const {
+      data: created,
+      error: insertError,
+    } = await supabaseAdmin
+      .from('payments')
+      .insert(records)
+      .select();
 
     if (insertError) {
       return NextResponse.json(
