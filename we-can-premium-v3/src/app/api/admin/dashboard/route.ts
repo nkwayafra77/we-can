@@ -20,26 +20,27 @@ export async function GET(req: NextRequest) {
         new Date().getFullYear()
     );
 
-    // Get ALL registered members
+    // Load all registered members
     const { data: members, error: membersError } =
       await supabaseAdmin
         .from('members')
-        .select('id,name,family,phone')
-        .order('created_at', { ascending: true });
+        .select('id,name,family,phone');
 
     if (membersError) {
       console.error('Members error:', membersError);
 
       return NextResponse.json(
         {
-          error: 'Failed to load members',
-          details: membersError.message,
+          error: membersError.message,
+          details: membersError.details,
+          hint: membersError.hint,
+          code: membersError.code,
         },
         { status: 500 }
       );
     }
 
-    // Get payments for selected year
+    // Load payments for the selected year
     const { data: payments, error: paymentsError } =
       await supabaseAdmin
         .from('payments')
@@ -52,8 +53,10 @@ export async function GET(req: NextRequest) {
 
       return NextResponse.json(
         {
-          error: 'Failed to load payments',
-          details: paymentsError.message,
+          error: paymentsError.message,
+          details: paymentsError.details,
+          hint: paymentsError.hint,
+          code: paymentsError.code,
         },
         { status: 500 }
       );
@@ -62,10 +65,7 @@ export async function GET(req: NextRequest) {
     const allMembers = members || [];
     const allPayments = payments || [];
 
-    /*
-      Match family names the same way as
-      the public Family Standing page.
-    */
+    // Match family names flexibly
     const normalizeFamily = (value: string) =>
       String(value || '')
         .trim()
@@ -85,6 +85,7 @@ export async function GET(req: NextRequest) {
       );
     };
 
+    // Build family statistics
     const families = FAMILIES.map((familyName) => {
       const familyMembers = allMembers.filter(
         (member) =>
@@ -148,7 +149,7 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    // Overall totals
+    // Overall payment statistics
     const paidPayments = allPayments.filter(
       (payment) =>
         String(payment.status || '')
@@ -183,9 +184,7 @@ export async function GET(req: NextRequest) {
       {
         year,
 
-        // IMPORTANT:
-        // This is the real number of registered
-        // members returned from Supabase.
+        // Total number of registered members
         members: allMembers.length,
 
         collected,
