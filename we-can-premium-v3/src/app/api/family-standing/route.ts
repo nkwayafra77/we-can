@@ -18,10 +18,10 @@ export async function GET(req: NextRequest) {
         .select("id, name, family");
 
     if (membersError) {
+      console.error("Members error:", membersError);
+
       return NextResponse.json(
-        {
-          error: membersError.message,
-        },
+        { error: membersError.message },
         { status: 500 }
       );
     }
@@ -33,10 +33,10 @@ export async function GET(req: NextRequest) {
         .eq("year", year);
 
     if (paymentsError) {
+      console.error("Payments error:", paymentsError);
+
       return NextResponse.json(
-        {
-          error: paymentsError.message,
-        },
+        { error: paymentsError.message },
         { status: 500 }
       );
     }
@@ -45,78 +45,69 @@ export async function GET(req: NextRequest) {
     const allPayments = payments || [];
 
     const families = FAMILIES.map((familyName) => {
-      const familyMembers = allMembers.filter(
-        (member) => {
-          const memberFamily = String(
-            member.family || ""
-          )
-            .trim()
-            .toLowerCase();
+      const familyMembers = allMembers.filter((member) => {
+        const memberFamily = String(member.family || "")
+          .trim()
+          .toLowerCase();
 
-          const configFamily = String(
-            familyName || ""
-          )
-            .trim()
-            .toLowerCase();
+        const configFamily = String(familyName || "")
+          .trim()
+          .toLowerCase();
 
-          return (
-            memberFamily === configFamily ||
-            memberFamily ===
-              `${configFamily} family` ||
-            `${memberFamily} family` ===
-              configFamily
-          );
-        }
-      );
+        return (
+          memberFamily === configFamily ||
+          memberFamily === `${configFamily} family` ||
+          `${memberFamily} family` === configFamily
+        );
+      });
 
       const memberIds = new Set(
-        familyMembers.map(
-          (member) => member.id
-        )
+        familyMembers.map((member) => member.id)
       );
 
-      const familyPayments = allPayments.filter(
+      const familyPayments = allPayments.filter((payment) =>
+        memberIds.has(payment.member_id)
+      );
+
+      const paidPayments = familyPayments.filter(
         (payment) =>
-          memberIds.has(payment.member_id)
+          String(payment.status || "")
+            .trim()
+            .toLowerCase() === "paid"
       );
 
-      const paidPayments =
-        familyPayments.filter(
-          (payment) =>
-            String(payment.status)
-              .trim()
-              .toLowerCase() === "paid"
-        );
+      const pendingPayments = familyPayments.filter(
+        (payment) =>
+          String(payment.status || "")
+            .trim()
+            .toLowerCase() === "pending"
+      );
 
-      const pendingPayments =
-        familyPayments.filter(
-          (payment) =>
-            String(payment.status)
-              .trim()
-              .toLowerCase() === "pending"
-        );
+      const collected = paidPayments.reduce(
+        (total, payment) =>
+          total + Number(payment.amount || 0),
+        0
+      );
 
-      const collected =
-        paidPayments.reduce(
-          (total, payment) =>
-            total +
-            Number(payment.amount || 0),
-          0
-        );
-
-      const expected =
-        familyMembers.length * 12 * 1000;
+      const expected = familyMembers.length * 12 * 1000;
 
       const percent =
         expected > 0
-          ? Math.min(
-              100,
-              (collected / expected) * 100
-            )
+          ? Math.min(100, (collected / expected) * 100)
           : 0;
 
+      /*
+       * Make sure the API always returns
+       * "Tigers Family", not "Tigers".
+       */
+      const displayName = familyName
+        .toLowerCase()
+        .endsWith(" family")
+        ? familyName
+        : `${familyName} Family`;
+
       return {
-        name: familyName,
+        name: displayName,
         members: familyMembers.length,
         collected,
         paid: paidPayments.length,
@@ -159,10 +150,7 @@ export async function GET(req: NextRequest) {
       }
     );
   } catch (error) {
-    console.error(
-      "Family standing error:",
-      error
-    );
+    console.error("Family standing error:", error);
 
     return NextResponse.json(
       {
