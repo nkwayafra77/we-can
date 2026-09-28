@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { FAMILIES } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,12 +18,9 @@ export async function GET(req: NextRequest) {
         .select("id, name, family");
 
     if (membersError) {
-      console.error("MEMBERS ERROR:", membersError);
-
       return NextResponse.json(
         {
-          error: "Failed to load members",
-          details: membersError.message,
+          error: membersError.message,
         },
         { status: 500 }
       );
@@ -31,18 +29,13 @@ export async function GET(req: NextRequest) {
     const { data: payments, error: paymentsError } =
       await supabaseAdmin
         .from("payments")
-        .select(
-          "id, member_id, amount, status, month, year"
-        )
+        .select("*")
         .eq("year", year);
 
     if (paymentsError) {
-      console.error("PAYMENTS ERROR:", paymentsError);
-
       return NextResponse.json(
         {
-          error: "Failed to load payments",
-          details: paymentsError.message,
+          error: paymentsError.message,
         },
         { status: 500 }
       );
@@ -51,26 +44,27 @@ export async function GET(req: NextRequest) {
     const allMembers = members || [];
     const allPayments = payments || [];
 
-    console.log("YEAR:", year);
-    console.log("MEMBERS:", allMembers);
-    console.log("PAYMENTS:", allPayments);
-
     const families = FAMILIES.map((familyName) => {
       const familyMembers = allMembers.filter(
         (member) => {
-          const databaseFamily =
-            String(member.family || "")
-              .trim()
-              .replace(/ Family$/i, "");
+          const memberFamily = String(
+            member.family || ""
+          )
+            .trim()
+            .toLowerCase();
 
-          const expectedFamily =
-            String(familyName || "")
-              .trim()
-              .replace(/ Family$/i, "");
+          const configFamily = String(
+            familyName || ""
+          )
+            .trim()
+            .toLowerCase();
 
           return (
-            databaseFamily.toLowerCase() ===
-            expectedFamily.toLowerCase()
+            memberFamily === configFamily ||
+            memberFamily ===
+              `${configFamily} family` ||
+            `${memberFamily} family` ===
+              configFamily
           );
         }
       );
@@ -89,21 +83,24 @@ export async function GET(req: NextRequest) {
       const paidPayments =
         familyPayments.filter(
           (payment) =>
-            String(payment.status).toLowerCase() ===
-            "paid"
+            String(payment.status)
+              .trim()
+              .toLowerCase() === "paid"
         );
 
       const pendingPayments =
         familyPayments.filter(
           (payment) =>
-            String(payment.status).toLowerCase() ===
-            "pending"
+            String(payment.status)
+              .trim()
+              .toLowerCase() === "pending"
         );
 
       const collected =
         paidPayments.reduce(
-          (sum, payment) =>
-            sum + Number(payment.amount || 0),
+          (total, payment) =>
+            total +
+            Number(payment.amount || 0),
           0
         );
 
@@ -155,20 +152,21 @@ export async function GET(req: NextRequest) {
       {
         headers: {
           "Cache-Control":
-            "no-store, no-cache, must-revalidate",
+            "no-store, no-cache, must-revalidate, proxy-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
         },
       }
     );
   } catch (error) {
     console.error(
-      "FAMILY STANDING ERROR:",
+      "Family standing error:",
       error
     );
 
     return NextResponse.json(
       {
-        error: "Unable to load family standing",
-        details:
+        error:
           error instanceof Error
             ? error.message
             : "Unknown error",
