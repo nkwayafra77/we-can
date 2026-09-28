@@ -678,10 +678,7 @@ export default function AdminDashboard() {
               )}
             </section>
 
-            {/* ================================================= */}
-            {/* NEW FAMILY STANDING DESIGN */}
-            {/* ================================================= */}
-
+            {/* FAMILY STANDING */}
             <section
               style={{
                 background:
@@ -694,7 +691,6 @@ export default function AdminDashboard() {
                   '0 15px 40px rgba(15,23,42,0.18)',
               }}
             >
-              {/* TITLE */}
               <div
                 style={{
                   display: 'flex',
@@ -763,7 +759,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* FAMILY GRID */}
               <div
                 style={{
                   display: 'grid',
@@ -842,7 +837,6 @@ export default function AdminDashboard() {
                               'hidden',
                           }}
                         >
-                          {/* MEDAL */}
                           <div
                             style={{
                               position:
@@ -872,7 +866,6 @@ export default function AdminDashboard() {
                             {medal}
                           </div>
 
-                          {/* FAMILY NAME */}
                           <div
                             style={{
                               display:
@@ -939,7 +932,6 @@ export default function AdminDashboard() {
                             </div>
                           </div>
 
-                          {/* PERCENTAGE */}
                           <div
                             style={{
                               marginTop:
@@ -978,7 +970,7 @@ export default function AdminDashboard() {
                                     '3px',
                                 }}
                               >
-                                {progress}%
+                                {progress.toFixed(2)}%
                               </div>
                             </div>
 
@@ -995,7 +987,6 @@ export default function AdminDashboard() {
                             </div>
                           </div>
 
-                          {/* PROGRESS BAR */}
                           <div
                             style={{
                               height:
@@ -1028,7 +1019,6 @@ export default function AdminDashboard() {
                             />
                           </div>
 
-                          {/* STATS */}
                           <div
                             style={{
                               display:
@@ -1066,7 +1056,6 @@ export default function AdminDashboard() {
                             />
                           </div>
 
-                          {/* BOTTOM */}
                           <div
                             style={{
                               marginTop:
