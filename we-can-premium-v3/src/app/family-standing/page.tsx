@@ -3,26 +3,27 @@
 import { useEffect, useMemo, useState } from "react";
 
 const FAMILIES = [
-  "Gentle Giants Family",
-  "Kind Souls Family",
-  "Little Lights Family",
-  "Golden Hearts Family",
-  "Faith Walkers Family",
-  "Warriors Family",
-  "Victorious Family",
-  "Tigers Family",
-  "Anointed Family",
-  "Solidarity Family",
+  "Gentle Giants",
+  "Kind Souls",
+  "Little Lights",
+  "Golden Hearts",
+  "Faith Walkers",
+  "Warriors",
+  "Victorious",
+  "Tigers",
+  "Anointed",
+  "Solidarity",
 ];
 
 type Family = {
-  family: string;
+  name: string;
   members: number;
   paid: number;
   pending: number;
+  unpaid: number;
   collected: number;
   expected: number;
-  percentage: number;
+  percent: number;
 };
 
 export default function FamilyStandingPage() {
@@ -68,18 +69,19 @@ export default function FamilyStandingPage() {
           FAMILIES.map((familyName) => {
             const found = apiFamilies.find(
               (item: Family) =>
-                item.family === familyName
+                item.name === familyName
             );
 
             return (
               found || {
-                family: familyName,
+                name: familyName,
                 members: 0,
                 paid: 0,
                 pending: 0,
+                unpaid: 0,
                 collected: 0,
                 expected: 0,
-                percentage: 0,
+                percent: 0,
               }
             );
           });
@@ -103,15 +105,15 @@ export default function FamilyStandingPage() {
 
   const sortedFamilies = useMemo(() => {
     return [...families].sort((a, b) => {
-      if (b.percentage !== a.percentage) {
-        return b.percentage - a.percentage;
+      if (b.percent !== a.percent) {
+        return b.percent - a.percent;
       }
 
       if (b.collected !== a.collected) {
         return b.collected - a.collected;
       }
 
-      return a.family.localeCompare(b.family);
+      return a.name.localeCompare(b.name);
     });
   }, [families]);
 
@@ -372,13 +374,13 @@ export default function FamilyStandingPage() {
                       100,
                       Math.max(
                         0,
-                        family.percentage
+                        family.percent
                       )
                     );
 
                   return (
                     <article
-                      key={family.family}
+                      key={family.name}
                       className={`familyCard ${getRankClass(
                         index
                       )}`}
@@ -406,7 +408,7 @@ export default function FamilyStandingPage() {
                           </p>
 
                           <h3>
-                            {family.family}
+                            {family.name} Family
                           </h3>
 
                         </div>
@@ -414,9 +416,7 @@ export default function FamilyStandingPage() {
                         <div className="percentage">
 
                           <strong>
-                            {Math.round(
-                              percentage
-                            )}
+                            {percentage.toFixed(2)}
                             %
                           </strong>
 
@@ -438,9 +438,7 @@ export default function FamilyStandingPage() {
                           </span>
 
                           <strong>
-                            {Math.round(
-                              percentage
-                            )}
+                            {percentage.toFixed(2)}
                             %
                           </strong>
 
