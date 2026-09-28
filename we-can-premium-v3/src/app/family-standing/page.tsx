@@ -2,26 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-const FAMILIES = [
-  "Gentle Giants",
-  "Kind Souls",
-  "Little Lights",
-  "Golden Hearts",
-  "Faith Walkers",
-  "Warriors",
-  "Victorious",
-  "Tigers",
-  "Anointed",
-  "Solidarity",
-];
-
 type Family = {
   name: string;
   members: number;
+  collected: number;
   paid: number;
   pending: number;
   unpaid: number;
-  collected: number;
   expected: number;
   percent: number;
 };
@@ -29,132 +16,158 @@ type Family = {
 export default function FamilyStandingPage() {
   const currentYear = new Date().getFullYear();
 
-  const [year, setYear] = useState(currentYear);
-  const [families, setFamilies] = useState<Family[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [year, setYear] =
+    useState(currentYear);
+
+  const [families, setFamilies] =
+    useState<Family[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
 
   const years = Array.from(
-    { length: currentYear - 2020 + 1 },
-    (_, i) => currentYear - i
+    {
+      length:
+        currentYear - 2020 + 1,
+    },
+    (_, i) =>
+      currentYear - i
   );
+
+  async function loadStanding(
+    selectedYear: number
+  ) {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        `/api/family-standing?year=${selectedYear}&t=${Date.now()}`,
+        {
+          method: "GET",
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        }
+      );
+
+      const result =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+            "Unable to load family standing"
+        );
+      }
+
+      if (
+        !Array.isArray(
+          result.families
+        )
+      ) {
+        throw new Error(
+          "Invalid family standing data"
+        );
+      }
+
+      setFamilies(
+        result.families
+      );
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to load family standing."
+      );
+
+      setFamilies([]);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadFamilyStanding() {
-      try {
-        setLoading(true);
-        setError("");
-
-        const response = await fetch(
-          `/api/family-standing?year=${year}`,
-          {
-            cache: "no-store",
-          }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data?.error ||
-              "Unable to load family standing"
-          );
-        }
-
-        const apiFamilies = Array.isArray(data.families)
-          ? data.families
-          : [];
-
-        const formattedFamilies: Family[] =
-          FAMILIES.map((familyName) => {
-            const found = apiFamilies.find(
-              (item: Family) =>
-                item.name === familyName
-            );
-
-            return (
-              found || {
-                name: familyName,
-                members: 0,
-                paid: 0,
-                pending: 0,
-                unpaid: 0,
-                collected: 0,
-                expected: 0,
-                percent: 0,
-              }
-            );
-          });
-
-        setFamilies(formattedFamilies);
-      } catch (err) {
-        console.error(err);
-
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Unable to load family standing."
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadFamilyStanding();
+    loadStanding(year);
   }, [year]);
 
-  const sortedFamilies = useMemo(() => {
-    return [...families].sort((a, b) => {
-      if (b.percent !== a.percent) {
-        return b.percent - a.percent;
-      }
+  const sortedFamilies =
+    useMemo(() => {
+      return [...families].sort(
+        (a, b) => {
+          if (
+            b.percent !==
+            a.percent
+          ) {
+            return (
+              b.percent -
+              a.percent
+            );
+          }
 
-      if (b.collected !== a.collected) {
-        return b.collected - a.collected;
-      }
+          return (
+            b.collected -
+            a.collected
+          );
+        }
+      );
+    }, [families]);
 
-      return a.name.localeCompare(b.name);
-    });
-  }, [families]);
-
-  const totalCollected = families.reduce(
-    (sum, family) => sum + family.collected,
-    0
-  );
-
-  const totalMembers = families.reduce(
-    (sum, family) => sum + family.members,
-    0
-  );
-
-  const totalPaid = families.reduce(
-    (sum, family) => sum + family.paid,
-    0
-  );
-
-  const totalPending = families.reduce(
-    (sum, family) => sum + family.pending,
-    0
-  );
-
-  const formatMoney = (amount: number) => {
-    return new Intl.NumberFormat("en-RW").format(
-      amount
+  const totalMembers =
+    families.reduce(
+      (total, family) =>
+        total + family.members,
+      0
     );
+
+  const totalCollected =
+    families.reduce(
+      (total, family) =>
+        total + family.collected,
+      0
+    );
+
+  const totalPaid =
+    families.reduce(
+      (total, family) =>
+        total + family.paid,
+      0
+    );
+
+  const totalPending =
+    families.reduce(
+      (total, family) =>
+        total + family.pending,
+      0
+    );
+
+  const formatMoney = (
+    amount: number
+  ) => {
+    return new Intl.NumberFormat(
+      "en-RW"
+    ).format(amount);
   };
 
-  const getMedal = (index: number) => {
-    if (index === 0) return "🥇";
-    if (index === 1) return "🥈";
-    if (index === 2) return "🥉";
+  const getMedal = (
+    index: number
+  ) => {
+    if (index === 0)
+      return "🥇";
+
+    if (index === 1)
+      return "🥈";
+
+    if (index === 2)
+      return "🥉";
+
     return "🏅";
-  };
-
-  const getRankClass = (index: number) => {
-    if (index === 0) return "first";
-    if (index === 1) return "second";
-    if (index === 2) return "third";
-    return "";
   };
 
   return (
@@ -164,10 +177,12 @@ export default function FamilyStandingPage() {
 
       <section className="container">
 
-        {/* HEADER */}
         <header className="header">
 
-          <a href="/" className="backButton">
+          <a
+            href="/"
+            className="backButton"
+          >
             ← Back Home
           </a>
 
@@ -186,17 +201,19 @@ export default function FamilyStandingPage() {
             </h1>
 
             <p className="subtitle">
-              Community Contribution Progress
+              Community Contribution
+              Progress
             </p>
 
             <p className="description">
-              See how our families are progressing
-              together through monthly contributions.
+              See how our families are
+              progressing together
+              through monthly
+              contributions.
             </p>
 
           </div>
 
-          {/* YEAR SELECTOR */}
           <div className="yearBox">
 
             <label htmlFor="year">
@@ -206,29 +223,33 @@ export default function FamilyStandingPage() {
             <select
               id="year"
               value={year}
-              onChange={(event) =>
-                setYear(Number(event.target.value))
+              onChange={(e) =>
+                setYear(
+                  Number(
+                    e.target.value
+                  )
+                )
               }
             >
-              {years.map((item) => (
-                <option
-                  key={item}
-                  value={item}
-                >
-                  {item}
-                </option>
-              ))}
+              {years.map(
+                (item) => (
+                  <option
+                    key={item}
+                    value={item}
+                  >
+                    {item}
+                  </option>
+                )
+              )}
             </select>
 
           </div>
 
         </header>
 
-        {/* SUMMARY */}
         <section className="overview">
 
           <div className="overviewCard">
-
             <div className="overviewIcon">
               👥
             </div>
@@ -242,11 +263,9 @@ export default function FamilyStandingPage() {
                 {totalMembers}
               </strong>
             </div>
-
           </div>
 
           <div className="overviewCard">
-
             <div className="overviewIcon">
               💰
             </div>
@@ -257,15 +276,18 @@ export default function FamilyStandingPage() {
               </span>
 
               <strong>
-                {formatMoney(totalCollected)}
-                <small> RWF</small>
+                {formatMoney(
+                  totalCollected
+                )}
+                <small>
+                  {" "}
+                  RWF
+                </small>
               </strong>
             </div>
-
           </div>
 
           <div className="overviewCard">
-
             <div className="overviewIcon">
               ✅
             </div>
@@ -279,11 +301,9 @@ export default function FamilyStandingPage() {
                 {totalPaid}
               </strong>
             </div>
-
           </div>
 
           <div className="overviewCard">
-
             <div className="overviewIcon">
               ⏳
             </div>
@@ -297,12 +317,10 @@ export default function FamilyStandingPage() {
                 {totalPending}
               </strong>
             </div>
-
           </div>
 
         </section>
 
-        {/* SECTION TITLE */}
         <div className="sectionHeading">
 
           <div>
@@ -321,94 +339,123 @@ export default function FamilyStandingPage() {
 
         </div>
 
-        {/* LOADING */}
         {loading && (
           <div className="loading">
 
             <div className="spinner" />
 
             <p>
-              Loading family standing...
+              Loading family
+              standing...
             </p>
 
           </div>
         )}
 
-        {/* ERROR */}
-        {!loading && error && (
-          <div className="errorBox">
-
-            <div className="errorIcon">
-              ⚠️
-            </div>
-
-            <h3>
-              Unable to load family standing
-            </h3>
-
-            <p>
-              {error}
-            </p>
-
-            <button
-              onClick={() =>
-                window.location.reload()
-              }
-            >
-              Try Again
-            </button>
-
-          </div>
-        )}
-
-        {/* FAMILY LIST */}
         {!loading &&
-          !error && (
+          error && (
+            <div className="errorBox">
+
+              <div className="errorIcon">
+                ⚠️
+              </div>
+
+              <h3>
+                Unable to load
+                family standing
+              </h3>
+
+              <p>
+                {error}
+              </p>
+
+              <button
+                onClick={() =>
+                  loadStanding(
+                    year
+                  )
+                }
+              >
+                Try Again
+              </button>
+
+            </div>
+          )}
+
+        {!loading &&
+          !error &&
+          sortedFamilies.length >
+            0 && (
             <section className="families">
 
               {sortedFamilies.map(
-                (family, index) => {
+                (
+                  family,
+                  index
+                ) => {
 
                   const percentage =
                     Math.min(
                       100,
                       Math.max(
                         0,
-                        family.percent
+                        Number(
+                          family.percent
+                        ) || 0
                       )
                     );
 
                   return (
                     <article
-                      key={family.name}
-                      className={`familyCard ${getRankClass(
-                        index
-                      )}`}
+                      key={
+                        family.name
+                      }
+                      className={`familyCard ${
+                        index === 0
+                          ? "first"
+                          : index ===
+                            1
+                          ? "second"
+                          : index ===
+                            2
+                          ? "third"
+                          : ""
+                      }`}
                     >
 
-                      {/* CARD HEADER */}
                       <div className="cardTop">
 
                         <div className="rankCircle">
-                          {getMedal(index)}
+                          {getMedal(
+                            index
+                          )}
                         </div>
 
                         <div className="familyInfo">
 
                           <p className="rankText">
 
-                            {index === 0
+                            {index ===
+                            0
                               ? "1ST PLACE"
-                              : index === 1
+                              : index ===
+                                1
                               ? "2ND PLACE"
-                              : index === 2
+                              : index ===
+                                2
                               ? "3RD PLACE"
-                              : `#${index + 1}`}
+                              : `#${
+                                  index +
+                                  1
+                                }`}
 
                           </p>
 
                           <h3>
-                            {family.name} Family
+                            {
+                              family.name
+                            }{" "}
+                            Family
                           </h3>
 
                         </div>
@@ -416,7 +463,9 @@ export default function FamilyStandingPage() {
                         <div className="percentage">
 
                           <strong>
-                            {percentage.toFixed(2)}
+                            {percentage.toFixed(
+                              2
+                            )}
                             %
                           </strong>
 
@@ -428,17 +477,19 @@ export default function FamilyStandingPage() {
 
                       </div>
 
-                      {/* PROGRESS */}
                       <div className="progressSection">
 
                         <div className="progressLabels">
 
                           <span>
-                            Contribution progress
+                            Contribution
+                            progress
                           </span>
 
                           <strong>
-                            {percentage.toFixed(2)}
+                            {percentage.toFixed(
+                              2
+                            )}
                             %
                           </strong>
 
@@ -457,7 +508,6 @@ export default function FamilyStandingPage() {
 
                       </div>
 
-                      {/* STATS */}
                       <div className="stats">
 
                         <div className="stat">
@@ -467,13 +517,17 @@ export default function FamilyStandingPage() {
                           </span>
 
                           <div>
+
                             <small>
                               Members
                             </small>
 
                             <strong>
-                              {family.members}
+                              {
+                                family.members
+                              }
                             </strong>
+
                           </div>
 
                         </div>
@@ -485,6 +539,7 @@ export default function FamilyStandingPage() {
                           </span>
 
                           <div>
+
                             <small>
                               Collected
                             </small>
@@ -498,6 +553,7 @@ export default function FamilyStandingPage() {
                             <em>
                               RWF
                             </em>
+
                           </div>
 
                         </div>
@@ -509,13 +565,17 @@ export default function FamilyStandingPage() {
                           </span>
 
                           <div>
+
                             <small>
                               Paid
                             </small>
 
                             <strong>
-                              {family.paid}
+                              {
+                                family.paid
+                              }
                             </strong>
+
                           </div>
 
                         </div>
@@ -527,34 +587,40 @@ export default function FamilyStandingPage() {
                           </span>
 
                           <div>
+
                             <small>
                               Pending
                             </small>
 
                             <strong>
-                              {family.pending}
+                              {
+                                family.pending
+                              }
                             </strong>
+
                           </div>
 
                         </div>
 
                       </div>
 
-                      {/* FOOTER */}
                       <div className="cardFooter">
 
                         <span>
 
-                          {percentage >= 100
+                          {percentage >=
+                          100
                             ? "🎉 Contribution goal reached"
-                            : percentage > 0
+                            : percentage >
+                              0
                             ? "💪 Keep moving forward together"
                             : "🌱 Ready to get started"}
 
                         </span>
 
                         <span className="familyNumber">
-                          Family {index + 1}
+                          Family{" "}
+                          {index + 1}
                         </span>
 
                       </div>
@@ -567,7 +633,6 @@ export default function FamilyStandingPage() {
             </section>
           )}
 
-        {/* FOOTER */}
         <footer>
 
           <div className="footerLogo">
@@ -600,12 +665,12 @@ export default function FamilyStandingPage() {
           background:
             radial-gradient(
               circle at top left,
-              rgba(99, 102, 241, 0.12),
+              rgba(99,102,241,.12),
               transparent 30%
             ),
             radial-gradient(
               circle at bottom right,
-              rgba(16, 185, 129, 0.10),
+              rgba(16,185,129,.10),
               transparent 30%
             ),
             #f7f9fc;
@@ -619,7 +684,7 @@ export default function FamilyStandingPage() {
           height: 420px;
           border-radius: 50%;
           filter: blur(90px);
-          opacity: 0.18;
+          opacity: .18;
           pointer-events: none;
         }
 
@@ -653,21 +718,13 @@ export default function FamilyStandingPage() {
           align-items: center;
           padding: 10px 17px;
           border-radius: 999px;
-          background: rgba(255,255,255,0.8);
+          background: rgba(255,255,255,.8);
           border: 1px solid #e5e9f2;
           color: #475569;
           text-decoration: none;
           font-size: 14px;
           font-weight: 700;
-          transition: 0.2s ease;
           margin-bottom: 30px;
-        }
-
-        .backButton:hover {
-          transform: translateY(-2px);
-          background: white;
-          box-shadow:
-            0 8px 22px rgba(15,23,42,0.08);
         }
 
         .hero {
@@ -684,15 +741,12 @@ export default function FamilyStandingPage() {
           margin: 0 auto 18px;
           border-radius: 24px;
           font-size: 38px;
-          background:
-            linear-gradient(
-              135deg,
-              #fff7d6,
-              #ffffff
-            );
+          background: linear-gradient(
+            135deg,
+            #fff7d6,
+            #ffffff
+          );
           border: 1px solid #f2df9b;
-          box-shadow:
-            0 16px 35px rgba(180,140,20,0.12);
         }
 
         .eyebrow,
@@ -701,7 +755,7 @@ export default function FamilyStandingPage() {
           color: #6366f1;
           font-size: 12px;
           font-weight: 900;
-          letter-spacing: 0.16em;
+          letter-spacing: .16em;
         }
 
         h1 {
@@ -712,7 +766,7 @@ export default function FamilyStandingPage() {
             66px
           );
           line-height: 1;
-          letter-spacing: -0.055em;
+          letter-spacing: -.055em;
           font-weight: 900;
           color: #101828;
         }
@@ -745,8 +799,6 @@ export default function FamilyStandingPage() {
           border-radius: 16px;
           background: white;
           border: 1px solid #e4e8f0;
-          box-shadow:
-            0 10px 28px rgba(15,23,42,0.06);
         }
 
         .yearBox label {
@@ -763,13 +815,11 @@ export default function FamilyStandingPage() {
           padding: 9px 13px;
           font-weight: 900;
           color: #111827;
-          cursor: pointer;
         }
 
         .overview {
           display: grid;
-          grid-template-columns:
-            repeat(4, 1fr);
+          grid-template-columns: repeat(4,1fr);
           gap: 14px;
           margin-bottom: 45px;
         }
@@ -780,11 +830,8 @@ export default function FamilyStandingPage() {
           gap: 13px;
           padding: 18px;
           border-radius: 20px;
-          background:
-            rgba(255,255,255,0.88);
+          background: rgba(255,255,255,.88);
           border: 1px solid #e7eaf0;
-          box-shadow:
-            0 12px 30px rgba(15,23,42,0.045);
         }
 
         .overviewIcon {
@@ -826,7 +873,6 @@ export default function FamilyStandingPage() {
         .sectionHeading h2 {
           margin: 0;
           font-size: 30px;
-          letter-spacing: -0.035em;
           color: #101828;
         }
 
@@ -841,22 +887,15 @@ export default function FamilyStandingPage() {
 
         .families {
           display: grid;
-          grid-template-columns:
-            repeat(2, 1fr);
+          grid-template-columns: repeat(2,1fr);
           gap: 18px;
         }
 
         .familyCard {
-          background:
-            rgba(255,255,255,0.95);
+          background: rgba(255,255,255,.95);
           border: 1px solid #e7eaf0;
           border-radius: 26px;
           padding: 22px;
-          box-shadow:
-            0 14px 38px rgba(15,23,42,0.055);
-          transition:
-            transform 0.25s ease,
-            box-shadow 0.25s ease;
           position: relative;
           overflow: hidden;
         }
@@ -871,37 +910,28 @@ export default function FamilyStandingPage() {
           background: #e6e9ef;
         }
 
-        .familyCard.first::before {
-          background:
-            linear-gradient(
-              90deg,
-              #f6c453,
-              #ffe7a3
-            );
+        .first::before {
+          background: linear-gradient(
+            90deg,
+            #f6c453,
+            #ffe7a3
+          );
         }
 
-        .familyCard.second::before {
-          background:
-            linear-gradient(
-              90deg,
-              #9ca3af,
-              #e5e7eb
-            );
+        .second::before {
+          background: linear-gradient(
+            90deg,
+            #9ca3af,
+            #e5e7eb
+          );
         }
 
-        .familyCard.third::before {
-          background:
-            linear-gradient(
-              90deg,
-              #cd7f32,
-              #f2c49a
-            );
-        }
-
-        .familyCard:hover {
-          transform: translateY(-5px);
-          box-shadow:
-            0 22px 48px rgba(15,23,42,0.09);
+        .third::before {
+          background: linear-gradient(
+            90deg,
+            #cd7f32,
+            #f2c49a
+          );
         }
 
         .cardTop {
@@ -922,18 +952,6 @@ export default function FamilyStandingPage() {
           font-size: 28px;
         }
 
-        .first .rankCircle {
-          background: #fff8dc;
-        }
-
-        .second .rankCircle {
-          background: #f1f3f5;
-        }
-
-        .third .rankCircle {
-          background: #fff0e5;
-        }
-
         .familyInfo {
           min-width: 0;
           flex: 1;
@@ -943,7 +961,7 @@ export default function FamilyStandingPage() {
           margin: 0 0 3px;
           font-size: 9px;
           font-weight: 900;
-          letter-spacing: 0.12em;
+          letter-spacing: .12em;
           color: #98a2b3;
         }
 
@@ -951,7 +969,6 @@ export default function FamilyStandingPage() {
           margin: 0;
           font-size: 18px;
           color: #172033;
-          line-height: 1.2;
         }
 
         .percentage {
@@ -961,7 +978,6 @@ export default function FamilyStandingPage() {
         .percentage strong {
           display: block;
           font-size: 28px;
-          letter-spacing: -0.04em;
           color: #111827;
         }
 
@@ -986,10 +1002,6 @@ export default function FamilyStandingPage() {
           font-weight: 700;
         }
 
-        .progressLabels strong {
-          color: #344054;
-        }
-
         .progressTrack {
           height: 10px;
           width: 100%;
@@ -1000,55 +1012,22 @@ export default function FamilyStandingPage() {
 
         .progressFill {
           height: 100%;
-          min-width: 0;
           border-radius: 999px;
-          background:
-            linear-gradient(
-              90deg,
-              #6366f1,
-              #8b5cf6
-            );
-          transition:
-            width 0.7s ease;
-        }
-
-        .first .progressFill {
-          background:
-            linear-gradient(
-              90deg,
-              #eab308,
-              #facc15
-            );
-        }
-
-        .second .progressFill {
-          background:
-            linear-gradient(
-              90deg,
-              #64748b,
-              #94a3b8
-            );
-        }
-
-        .third .progressFill {
-          background:
-            linear-gradient(
-              90deg,
-              #c2410c,
-              #ea580c
-            );
+          background: linear-gradient(
+            90deg,
+            #6366f1,
+            #8b5cf6
+          );
         }
 
         .stats {
           display: grid;
-          grid-template-columns:
-            repeat(4, 1fr);
+          grid-template-columns: repeat(4,1fr);
           gap: 8px;
           margin-top: 20px;
         }
 
         .stat {
-          min-width: 0;
           display: flex;
           align-items: center;
           gap: 7px;
@@ -1070,7 +1049,6 @@ export default function FamilyStandingPage() {
 
         .stat strong {
           display: inline-block;
-          margin-top: 1px;
           color: #344054;
           font-size: 13px;
         }
@@ -1115,8 +1093,7 @@ export default function FamilyStandingPage() {
           border: 4px solid #e5e7eb;
           border-top-color: #6366f1;
           border-radius: 50%;
-          animation:
-            spin 0.8s linear infinite;
+          animation: spin .8s linear infinite;
           margin-bottom: 12px;
         }
 
@@ -1132,8 +1109,6 @@ export default function FamilyStandingPage() {
           background: white;
           border: 1px solid #e7eaf0;
           border-radius: 25px;
-          box-shadow:
-            0 12px 30px rgba(15,23,42,0.04);
         }
 
         .errorIcon {
@@ -1173,7 +1148,7 @@ export default function FamilyStandingPage() {
         .footerLogo {
           font-size: 19px;
           font-weight: 950;
-          letter-spacing: 0.12em;
+          letter-spacing: .12em;
           color: #111827;
         }
 
@@ -1191,20 +1166,16 @@ export default function FamilyStandingPage() {
         }
 
         @media (max-width: 850px) {
-
           .overview {
-            grid-template-columns:
-              repeat(2, 1fr);
+            grid-template-columns: repeat(2,1fr);
           }
 
           .families {
             grid-template-columns: 1fr;
           }
-
         }
 
         @media (max-width: 600px) {
-
           .page {
             padding: 18px 12px 40px;
           }
@@ -1232,15 +1203,10 @@ export default function FamilyStandingPage() {
             border-radius: 21px;
           }
 
-          .cardTop {
-            gap: 9px;
-          }
-
           .rankCircle {
             width: 48px;
             height: 48px;
             font-size: 22px;
-            border-radius: 14px;
           }
 
           .familyInfo h3 {
@@ -1252,26 +1218,15 @@ export default function FamilyStandingPage() {
           }
 
           .stats {
-            grid-template-columns:
-              repeat(2, 1fr);
-          }
-
-          .stat {
-            padding: 10px;
+            grid-template-columns: repeat(2,1fr);
           }
 
           .sectionHeading h2 {
             font-size: 25px;
           }
-
-          .yearBox {
-            width: fit-content;
-          }
-
         }
 
       `}</style>
-
     </main>
   );
 }
