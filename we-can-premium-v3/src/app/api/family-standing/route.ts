@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { FAMILIES } from "@/lib/config";
@@ -18,8 +19,6 @@ export async function GET(req: NextRequest) {
         .select("id, name, family");
 
     if (membersError) {
-      console.error("Members error:", membersError);
-
       return NextResponse.json(
         { error: membersError.message },
         { status: 500 }
@@ -33,8 +32,6 @@ export async function GET(req: NextRequest) {
         .eq("year", year);
 
     if (paymentsError) {
-      console.error("Payments error:", paymentsError);
-
       return NextResponse.json(
         { error: paymentsError.message },
         { status: 500 }
@@ -44,20 +41,19 @@ export async function GET(req: NextRequest) {
     const allMembers = members || [];
     const allPayments = payments || [];
 
-    const families = FAMILIES.map((familyName) => {
-      const familyMembers = allMembers.filter((member) => {
-        const memberFamily = String(member.family || "")
-          .trim()
-          .toLowerCase();
+    const normalize = (value: string) =>
+      String(value || "").trim().toLowerCase();
 
-        const configFamily = String(familyName || "")
-          .trim()
-          .toLowerCase();
+    const families = FAMILIES.map((familyName) => {
+      const configName = normalize(familyName);
+
+      const familyMembers = allMembers.filter((member) => {
+        const memberName = normalize(member.family);
 
         return (
-          memberFamily === configFamily ||
-          memberFamily === `${configFamily} family` ||
-          `${memberFamily} family` === configFamily
+          memberName === configName ||
+          memberName === `${configName} family` ||
+          `${memberName} family` === configName
         );
       });
 
@@ -65,27 +61,20 @@ export async function GET(req: NextRequest) {
         familyMembers.map((member) => member.id)
       );
 
-      const familyPayments = allPayments.filter((payment) =>
-        memberIds.has(payment.member_id)
+      const familyPayments = allPayments.filter(
+        (payment) => memberIds.has(payment.member_id)
       );
 
       const paidPayments = familyPayments.filter(
-        (payment) =>
-          String(payment.status || "")
-            .trim()
-            .toLowerCase() === "paid"
+        (payment) => normalize(payment.status) === "paid"
       );
 
       const pendingPayments = familyPayments.filter(
-        (payment) =>
-          String(payment.status || "")
-            .trim()
-            .toLowerCase() === "pending"
+        (payment) => normalize(payment.status) === "pending"
       );
 
       const collected = paidPayments.reduce(
-        (total, payment) =>
-          total + Number(payment.amount || 0),
+        (sum, payment) => sum + Number(payment.amount || 0),
         0
       );
 
@@ -96,13 +85,7 @@ export async function GET(req: NextRequest) {
           ? Math.min(100, (collected / expected) * 100)
           : 0;
 
-      /*
-       * Make sure the API always returns
-       * "Tigers Family", not "Tigers".
-       */
-      const displayName = familyName
-        .toLowerCase()
-        .endsWith(" family")
+      const displayName = configName.endsWith(" family")
         ? familyName
         : `${familyName} Family`;
 
@@ -123,23 +106,22 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    // Rank by confirmed money collected, highest first.
+    // Keep every family, including families with zero contributions.
     families.sort((a, b) => {
-      if (b.percent !== a.percent) {
-        return b.percent - a.percent;
-      }
-
       if (b.collected !== a.collected) {
         return b.collected - a.collected;
+      }
+
+      if (b.percent !== a.percent) {
+        return b.percent - a.percent;
       }
 
       return a.name.localeCompare(b.name);
     });
 
     return NextResponse.json(
-      {
-        year,
-        families,
-      },
+      { year, families },
       {
         headers: {
           "Cache-Control":
