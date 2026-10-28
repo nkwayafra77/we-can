@@ -57,8 +57,7 @@ export default function AdminDashboard() {
 
   const years = Array.from(
     { length: 11 },
-    (_, i) =>
-      new Date().getFullYear() - i
+    (_, i) => new Date().getFullYear() - i
   );
 
   async function loadDashboard() {
@@ -178,8 +177,7 @@ export default function AdminDashboard() {
         minHeight: '100vh',
         background: '#f3f4f6',
         padding: '30px',
-        fontFamily:
-          'Arial, sans-serif',
+        fontFamily: 'Arial, sans-serif',
       }}
     >
       <div
@@ -188,7 +186,6 @@ export default function AdminDashboard() {
           margin: '0 auto',
         }}
       >
-
         {/* HEADER */}
         <div
           style={{
@@ -199,8 +196,7 @@ export default function AdminDashboard() {
             borderRadius: '20px',
             marginBottom: '25px',
             display: 'flex',
-            justifyContent:
-              'space-between',
+            justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: '15px',
@@ -221,22 +217,18 @@ export default function AdminDashboard() {
 
             <p
               style={{
-                margin:
-                  '8px 0 0',
+                margin: '8px 0 0',
                 color: '#d1d5db',
               }}
             >
-              Manage members and
-              confirm payments
+              Manage members and confirm payments
             </p>
           </div>
 
           <select
             value={year}
             onChange={(e) =>
-              setYear(
-                Number(e.target.value)
-              )
+              setYear(Number(e.target.value))
             }
             style={{
               padding: '12px 18px',
@@ -248,10 +240,7 @@ export default function AdminDashboard() {
             }}
           >
             {years.map((item) => (
-              <option
-                key={item}
-                value={item}
-              >
+              <option key={item} value={item}>
                 {item}
               </option>
             ))}
@@ -304,7 +293,6 @@ export default function AdminDashboard() {
 
         {!loading && data && (
           <>
-
             {/* SUMMARY CARDS */}
             <div
               style={{
@@ -364,8 +352,7 @@ export default function AdminDashboard() {
               <div
                 style={{
                   display: 'flex',
-                  justifyContent:
-                    'space-between',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                   marginBottom: '20px',
                   flexWrap: 'wrap',
@@ -388,21 +375,19 @@ export default function AdminDashboard() {
                       marginTop: '7px',
                     }}
                   >
-                    Check Serge&apos;s MTN
-                    MoMo before confirming.
+                    Check Serge&apos;s MTN MoMo before
+                    confirming.
                   </p>
                 </div>
 
                 <div
                   style={{
                     background:
-                      pendingPayments.length >
-                      0
+                      pendingPayments.length > 0
                         ? '#fef3c7'
                         : '#dcfce7',
                     color:
-                      pendingPayments.length >
-                      0
+                      pendingPayments.length > 0
                         ? '#92400e'
                         : '#166534',
                     padding: '10px 15px',
@@ -410,13 +395,11 @@ export default function AdminDashboard() {
                     fontWeight: 'bold',
                   }}
                 >
-                  {pendingPayments.length}{' '}
-                  Pending
+                  {pendingPayments.length} Pending
                 </div>
               </div>
 
-              {pendingPayments.length ===
-              0 ? (
+              {pendingPayments.length === 0 ? (
                 <div
                   style={{
                     padding: '30px',
@@ -426,8 +409,7 @@ export default function AdminDashboard() {
                     color: '#6b7280',
                   }}
                 >
-                  No pending payments
-                  for {year}.
+                  No pending payments for {year}.
                 </div>
               ) : (
                 <div
@@ -438,240 +420,133 @@ export default function AdminDashboard() {
                   <table
                     style={{
                       width: '100%',
-                      borderCollapse:
-                        'collapse',
+                      borderCollapse: 'collapse',
                       minWidth: '850px',
                     }}
                   >
                     <thead>
                       <tr
                         style={{
-                          background:
-                            '#f3f4f6',
+                          background: '#f3f4f6',
                         }}
                       >
-                        <th
-                          style={thStyle}
-                        >
-                          Member
-                        </th>
-
-                        <th
-                          style={thStyle}
-                        >
-                          Phone
-                        </th>
-
-                        <th
-                          style={thStyle}
-                        >
-                          Family
-                        </th>
-
-                        <th
-                          style={thStyle}
-                        >
-                          Month
-                        </th>
-
-                        <th
-                          style={thStyle}
-                        >
-                          Amount
-                        </th>
-
-                        <th
-                          style={thStyle}
-                        >
-                          Status
-                        </th>
-
-                        <th
-                          style={thStyle}
-                        >
-                          Action
-                        </th>
+                        <th style={thStyle}>Member</th>
+                        <th style={thStyle}>Phone</th>
+                        <th style={thStyle}>Family</th>
+                        <th style={thStyle}>Month</th>
+                        <th style={thStyle}>Amount</th>
+                        <th style={thStyle}>Status</th>
+                        <th style={thStyle}>Action</th>
                       </tr>
                     </thead>
 
                     <tbody>
-                      {pendingPayments.map(
-                        (payment) => (
-                          <tr
-                            key={
-                              payment.id
-                            }
-                          >
-                            <td
-                              style={
-                                tdStyle
-                              }
-                            >
-                              <strong>
-                                {payment
-                                  .member
-                                  ?.name ||
-                                  'Unknown'}
-                              </strong>
-                            </td>
+                      {pendingPayments.map((payment) => (
+                        <tr key={payment.id}>
+                          <td style={tdStyle}>
+                            <strong>
+                              {payment.member?.name ||
+                                'Unknown'}
+                            </strong>
+                          </td>
 
-                            <td
-                              style={
-                                tdStyle
-                              }
-                            >
-                              {payment
-                                .member
-                                ?.phone ||
-                                '-'}
-                            </td>
+                          <td style={tdStyle}>
+                            {payment.member?.phone || '-'}
+                          </td>
 
-                            <td
-                              style={
-                                tdStyle
-                              }
-                            >
-                              {payment
-                                .member
-                                ?.family ||
-                                '-'}
-                            </td>
+                          <td style={tdStyle}>
+                            {payment.member?.family || '-'}
+                          </td>
 
-                            <td
-                              style={
-                                tdStyle
-                              }
-                            >
-                              {MONTHS[
-                                payment.month -
-                                  1
-                              ] ||
-                                payment.month}
-                            </td>
+                          <td style={tdStyle}>
+                            {MONTHS[payment.month - 1] ||
+                              payment.month}
+                          </td>
 
-                            <td
-                              style={
-                                tdStyle
-                              }
-                            >
-                              <strong>
-                                {Number(
-                                  payment.amount ||
-                                    0
-                                ).toLocaleString()}{' '}
-                                RWF
-                              </strong>
-                            </td>
+                          <td style={tdStyle}>
+                            <strong>
+                              {Number(
+                                payment.amount || 0
+                              ).toLocaleString()}{' '}
+                              RWF
+                            </strong>
+                          </td>
 
-                            <td
-                              style={
-                                tdStyle
-                              }
+                          <td style={tdStyle}>
+                            <span
+                              style={{
+                                background: '#fef3c7',
+                                color: '#92400e',
+                                padding: '6px 10px',
+                                borderRadius: '20px',
+                                fontSize: '13px',
+                                fontWeight: 'bold',
+                              }}
                             >
-                              <span
+                              PENDING
+                            </span>
+                          </td>
+
+                          <td style={tdStyle}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                gap: '8px',
+                              }}
+                            >
+                              <button
+                                onClick={() =>
+                                  handlePayment(
+                                    payment.id,
+                                    'confirm'
+                                  )
+                                }
+                                disabled={
+                                  actionLoading === payment.id
+                                }
                                 style={{
-                                  background:
-                                    '#fef3c7',
-                                  color:
-                                    '#92400e',
-                                  padding:
-                                    '6px 10px',
-                                  borderRadius:
-                                    '20px',
-                                  fontSize:
-                                    '13px',
-                                  fontWeight:
-                                    'bold',
+                                  background: '#16a34a',
+                                  color: 'white',
+                                  border: 'none',
+                                  padding: '10px 14px',
+                                  borderRadius: '8px',
+                                  cursor: 'pointer',
+                                  fontWeight: 'bold',
                                 }}
                               >
-                                PENDING
-                              </span>
-                            </td>
+                                {actionLoading === payment.id
+                                  ? '...'
+                                  : '✓ Confirm'}
+                              </button>
 
-                            <td
-                              style={
-                                tdStyle
-                              }
-                            >
-                              <div
+                              <button
+                                onClick={() =>
+                                  handlePayment(
+                                    payment.id,
+                                    'reject'
+                                  )
+                                }
+                                disabled={
+                                  actionLoading === payment.id
+                                }
                                 style={{
-                                  display:
-                                    'flex',
-                                  gap: '8px',
+                                  background: '#dc2626',
+                                  color: 'white',
+                                  border: 'none',
+                                  padding: '10px 14px',
+                                  borderRadius: '8px',
+                                  cursor: 'pointer',
+                                  fontWeight: 'bold',
                                 }}
                               >
-                                <button
-                                  onClick={() =>
-                                    handlePayment(
-                                      payment.id,
-                                      'confirm'
-                                    )
-                                  }
-                                  disabled={
-                                    actionLoading ===
-                                    payment.id
-                                  }
-                                  style={{
-                                    background:
-                                      '#16a34a',
-                                    color:
-                                      'white',
-                                    border:
-                                      'none',
-                                    padding:
-                                      '10px 14px',
-                                    borderRadius:
-                                      '8px',
-                                    cursor:
-                                      'pointer',
-                                    fontWeight:
-                                      'bold',
-                                  }}
-                                >
-                                  {actionLoading ===
-                                  payment.id
-                                    ? '...'
-                                    : '✓ Confirm'}
-                                </button>
-
-                                <button
-                                  onClick={() =>
-                                    handlePayment(
-                                      payment.id,
-                                      'reject'
-                                    )
-                                  }
-                                  disabled={
-                                    actionLoading ===
-                                    payment.id
-                                  }
-                                  style={{
-                                    background:
-                                      '#dc2626',
-                                    color:
-                                      'white',
-                                    border:
-                                      'none',
-                                    padding:
-                                      '10px 14px',
-                                    borderRadius:
-                                      '8px',
-                                    cursor:
-                                      'pointer',
-                                    fontWeight:
-                                      'bold',
-                                  }}
-                                >
-                                  {actionLoading ===
-                                  payment.id
-                                    ? '...'
-                                    : '✕ Reject'}
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        )
-                      )}
+                                {actionLoading === payment.id
+                                  ? '...'
+                                  : '✕ Reject'}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -694,8 +569,7 @@ export default function AdminDashboard() {
               <div
                 style={{
                   display: 'flex',
-                  justifyContent:
-                    'space-between',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                   flexWrap: 'wrap',
                   gap: '15px',
@@ -731,21 +605,18 @@ export default function AdminDashboard() {
 
                   <p
                     style={{
-                      margin:
-                        '8px 0 0 40px',
+                      margin: '8px 0 0 40px',
                       color: '#94a3b8',
                       fontSize: '14px',
                     }}
                   >
-                    Family contribution
-                    leaderboard for {year}
+                    Family contribution leaderboard for {year}
                   </p>
                 </div>
 
                 <div
                   style={{
-                    padding:
-                      '10px 18px',
+                    padding: '10px 18px',
                     borderRadius: '30px',
                     background:
                       'rgba(255,255,255,0.08)',
@@ -768,335 +639,265 @@ export default function AdminDashboard() {
                 }}
               >
                 {[...families]
-                  .sort(
-                    (a, b) =>
-                      Number(
-                        b.percent || 0
-                      ) -
-                      Number(
-                        a.percent || 0
+                  .sort((a, b) => {
+                    // Highest confirmed money collected ranks first.
+                    const amountDifference =
+                      Number(b.collected || 0) -
+                      Number(a.collected || 0);
+
+                    if (amountDifference !== 0) {
+                      return amountDifference;
+                    }
+
+                    // If amounts are equal, compare percentages.
+                    const percentageDifference =
+                      Number(b.percent || 0) -
+                      Number(a.percent || 0);
+
+                    if (percentageDifference !== 0) {
+                      return percentageDifference;
+                    }
+
+                    // If still tied, sort alphabetically.
+                    return a.name.localeCompare(b.name);
+                  })
+                  .map((family, index) => {
+                    const rank = index + 1;
+
+                    const progress = Math.min(
+                      100,
+                      Math.max(
+                        0,
+                        Number(family.percent || 0)
                       )
-                  )
-                  .map(
-                    (
-                      family,
-                      index
-                    ) => {
-                      const rank =
-                        index + 1;
+                    );
 
-                      const progress =
-                        Math.min(
-                          100,
-                          Math.max(
-                            0,
-                            Number(
-                              family.percent ||
-                                0
-                            )
-                          )
-                        );
+                    const medal =
+                      rank === 1
+                        ? '🥇'
+                        : rank === 2
+                        ? '🥈'
+                        : rank === 3
+                        ? '🥉'
+                        : '🏅';
 
-                      const medal =
-                        rank === 1
-                          ? '🥇'
-                          : rank === 2
-                          ? '🥈'
-                          : rank === 3
-                          ? '🥉'
-                          : '🏅';
+                    const medalBackground =
+                      rank === 1
+                        ? '#fbbf24'
+                        : rank === 2
+                        ? '#d1d5db'
+                        : rank === 3
+                        ? '#d97732'
+                        : '#334155';
 
-                      const medalBackground =
-                        rank === 1
-                          ? '#fbbf24'
-                          : rank === 2
-                          ? '#d1d5db'
-                          : rank === 3
-                          ? '#d97732'
-                          : '#334155';
-
-                      return (
+                    return (
+                      <div
+                        key={family.name}
+                        style={{
+                          background:
+                            'rgba(255,255,255,0.07)',
+                          border:
+                            rank <= 3
+                              ? '1px solid rgba(255,255,255,0.20)'
+                              : '1px solid rgba(255,255,255,0.08)',
+                          borderRadius: '22px',
+                          padding: '22px',
+                          position: 'relative',
+                          overflow: 'hidden',
+                        }}
+                      >
                         <div
-                          key={
-                            family.name
-                          }
                           style={{
-                            background:
-                              'rgba(255,255,255,0.07)',
-                            border:
-                              rank <= 3
-                                ? '1px solid rgba(255,255,255,0.20)'
-                                : '1px solid rgba(255,255,255,0.08)',
-                            borderRadius:
-                              '22px',
-                            padding:
-                              '22px',
-                            position:
-                              'relative',
-                            overflow:
-                              'hidden',
+                            position: 'absolute',
+                            right: '18px',
+                            top: '18px',
+                            width: '52px',
+                            height: '52px',
+                            borderRadius: '50%',
+                            background: medalBackground,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '23px',
+                          }}
+                        >
+                          {medal}
+                        </div>
+
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            paddingRight: '65px',
                           }}
                         >
                           <div
                             style={{
-                              position:
-                                'absolute',
-                              right:
-                                '18px',
-                              top:
-                                '18px',
-                              width:
-                                '52px',
-                              height:
-                                '52px',
-                              borderRadius:
-                                '50%',
-                              background:
-                                medalBackground,
-                              display:
-                                'flex',
-                              alignItems:
-                                'center',
-                              justifyContent:
-                                'center',
-                              fontSize:
-                                '23px',
-                            }}
-                          >
-                            {medal}
-                          </div>
-
-                          <div
-                            style={{
-                              display:
-                                'flex',
-                              alignItems:
-                                'center',
-                              gap: '12px',
-                              paddingRight:
-                                '65px',
-                            }}
-                          >
-                            <div
-                              style={{
-                                width:
-                                  '50px',
-                                height:
-                                  '50px',
-                                borderRadius:
-                                  '15px',
-                                background:
-                                  'rgba(255,255,255,0.10)',
-                                display:
-                                  'flex',
-                                alignItems:
-                                  'center',
-                                justifyContent:
-                                  'center',
-                                fontSize:
-                                  '24px',
-                              }}
-                            >
-                              👨‍👩‍👧‍👦
-                            </div>
-
-                            <div>
-                              <div
-                                style={{
-                                  fontSize:
-                                    '17px',
-                                  fontWeight:
-                                    '800',
-                                  lineHeight:
-                                    '1.3',
-                                }}
-                              >
-                                {
-                                  family.name
-                                }
-                              </div>
-
-                              <div
-                                style={{
-                                  color:
-                                    '#94a3b8',
-                                  fontSize:
-                                    '12px',
-                                  marginTop:
-                                    '4px',
-                                }}
-                              >
-                                Rank #
-                                {rank}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div
-                            style={{
-                              marginTop:
-                                '22px',
-                              display:
-                                'flex',
-                              justifyContent:
-                                'space-between',
-                              alignItems:
-                                'flex-end',
-                            }}
-                          >
-                            <div>
-                              <div
-                                style={{
-                                  color:
-                                    '#94a3b8',
-                                  fontSize:
-                                    '12px',
-                                  textTransform:
-                                    'uppercase',
-                                  letterSpacing:
-                                    '0.5px',
-                                }}
-                              >
-                                Contribution
-                              </div>
-
-                              <div
-                                style={{
-                                  fontSize:
-                                    '32px',
-                                  fontWeight:
-                                    '900',
-                                  marginTop:
-                                    '3px',
-                                }}
-                              >
-                                {progress.toFixed(2)}%
-                              </div>
-                            </div>
-
-                            <div
-                              style={{
-                                fontSize:
-                                  '12px',
-                                color:
-                                  '#94a3b8',
-                              }}
-                            >
-                              {family.paid}{' '}
-                              paid
-                            </div>
-                          </div>
-
-                          <div
-                            style={{
-                              height:
-                                '11px',
+                              width: '50px',
+                              height: '50px',
+                              borderRadius: '15px',
                               background:
                                 'rgba(255,255,255,0.10)',
-                              borderRadius:
-                                '20px',
-                              overflow:
-                                'hidden',
-                              marginTop:
-                                '12px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '24px',
                             }}
                           >
+                            👨‍👩‍👧‍👦
+                          </div>
+
+                          <div>
                             <div
                               style={{
-                                width: `${progress}%`,
-                                height:
-                                  '100%',
-                                borderRadius:
-                                  '20px',
-                                background:
-                                  rank ===
-                                  1
-                                    ? 'linear-gradient(90deg, #f59e0b, #fbbf24)'
-                                    : 'linear-gradient(90deg, #16a34a, #4ade80)',
-                                transition:
-                                  'width 0.5s ease',
-                              }}
-                            />
-                          </div>
-
-                          <div
-                            style={{
-                              display:
-                                'grid',
-                              gridTemplateColumns:
-                                'repeat(3, 1fr)',
-                              gap: '8px',
-                              marginTop:
-                                '18px',
-                            }}
-                          >
-                            <FamilyStat
-                              icon="👥"
-                              value={
-                                family.members
-                              }
-                              label="Members"
-                            />
-
-                            <FamilyStat
-                              icon="💰"
-                              value={Number(
-                                family.collected ||
-                                  0
-                              ).toLocaleString()}
-                              label="RWF"
-                            />
-
-                            <FamilyStat
-                              icon="⏳"
-                              value={
-                                family.pending
-                              }
-                              label="Pending"
-                            />
-                          </div>
-
-                          <div
-                            style={{
-                              marginTop:
-                                '18px',
-                              paddingTop:
-                                '14px',
-                              borderTop:
-                                '1px solid rgba(255,255,255,0.08)',
-                              display:
-                                'flex',
-                              justifyContent:
-                                'space-between',
-                              alignItems:
-                                'center',
-                            }}
-                          >
-                            <span
-                              style={{
-                                color:
-                                  '#94a3b8',
-                                fontSize:
-                                  '12px',
+                                fontSize: '17px',
+                                fontWeight: '800',
+                                lineHeight: '1.3',
                               }}
                             >
-                              Paid
-                              contributions
-                            </span>
+                              {family.name}
+                            </div>
 
-                            <strong
+                            <div
                               style={{
-                                fontSize:
-                                  '14px',
+                                color: '#94a3b8',
+                                fontSize: '12px',
+                                marginTop: '4px',
                               }}
                             >
-                              {family.paid}
-                            </strong>
+                              Rank #{rank}
+                            </div>
                           </div>
                         </div>
-                      );
-                    }
-                  )}
+
+                        <div
+                          style={{
+                            marginTop: '22px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-end',
+                          }}
+                        >
+                          <div>
+                            <div
+                              style={{
+                                color: '#94a3b8',
+                                fontSize: '12px',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                              }}
+                            >
+                              Contribution
+                            </div>
+
+                            <div
+                              style={{
+                                fontSize: '32px',
+                                fontWeight: '900',
+                                marginTop: '3px',
+                              }}
+                            >
+                              {progress.toFixed(2)}%
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              fontSize: '12px',
+                              color: '#94a3b8',
+                            }}
+                          >
+                            {family.paid} paid
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            height: '11px',
+                            background:
+                              'rgba(255,255,255,0.10)',
+                            borderRadius: '20px',
+                            overflow: 'hidden',
+                            marginTop: '12px',
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: `${progress}%`,
+                              height: '100%',
+                              borderRadius: '20px',
+                              background:
+                                rank === 1
+                                  ? 'linear-gradient(90deg, #f59e0b, #fbbf24)'
+                                  : 'linear-gradient(90deg, #16a34a, #4ade80)',
+                              transition:
+                                'width 0.5s ease',
+                            }}
+                          />
+                        </div>
+
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns:
+                              'repeat(3, 1fr)',
+                            gap: '8px',
+                            marginTop: '18px',
+                          }}
+                        >
+                          <FamilyStat
+                            icon="👥"
+                            value={family.members}
+                            label="Members"
+                          />
+
+                          <FamilyStat
+                            icon="💰"
+                            value={Number(
+                              family.collected || 0
+                            ).toLocaleString()}
+                            label="RWF"
+                          />
+
+                          <FamilyStat
+                            icon="⏳"
+                            value={family.pending}
+                            label="Pending"
+                          />
+                        </div>
+
+                        <div
+                          style={{
+                            marginTop: '18px',
+                            paddingTop: '14px',
+                            borderTop:
+                              '1px solid rgba(255,255,255,0.08)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <span
+                            style={{
+                              color: '#94a3b8',
+                              fontSize: '12px',
+                            }}
+                          >
+                            Paid contributions
+                          </span>
+
+                          <strong
+                            style={{
+                              fontSize: '14px',
+                            }}
+                          >
+                            {family.paid}
+                          </strong>
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             </section>
 
@@ -1125,118 +926,54 @@ export default function AdminDashboard() {
                 <table
                   style={{
                     width: '100%',
-                    borderCollapse:
-                      'collapse',
+                    borderCollapse: 'collapse',
                     minWidth: '800px',
                   }}
                 >
                   <thead>
                     <tr
                       style={{
-                        background:
-                          '#f3f4f6',
+                        background: '#f3f4f6',
                       }}
                     >
-                      <th
-                        style={thStyle}
-                      >
-                        Member
-                      </th>
-
-                      <th
-                        style={thStyle}
-                      >
-                        Family
-                      </th>
-
-                      <th
-                        style={thStyle}
-                      >
-                        Month
-                      </th>
-
-                      <th
-                        style={thStyle}
-                      >
-                        Amount
-                      </th>
-
-                      <th
-                        style={thStyle}
-                      >
-                        Status
-                      </th>
+                      <th style={thStyle}>Member</th>
+                      <th style={thStyle}>Family</th>
+                      <th style={thStyle}>Month</th>
+                      <th style={thStyle}>Amount</th>
+                      <th style={thStyle}>Status</th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {transactions.map(
-                      (payment) => (
-                        <tr
-                          key={
-                            payment.id
-                          }
-                        >
-                          <td
-                            style={
-                              tdStyle
-                            }
-                          >
-                            {payment
-                              .member
-                              ?.name ||
-                              'Unknown'}
-                          </td>
+                    {transactions.map((payment) => (
+                      <tr key={payment.id}>
+                        <td style={tdStyle}>
+                          {payment.member?.name || 'Unknown'}
+                        </td>
 
-                          <td
-                            style={
-                              tdStyle
-                            }
-                          >
-                            {payment
-                              .member
-                              ?.family ||
-                              '-'}
-                          </td>
+                        <td style={tdStyle}>
+                          {payment.member?.family || '-'}
+                        </td>
 
-                          <td
-                            style={
-                              tdStyle
-                            }
-                          >
-                            {MONTHS[
-                              payment.month -
-                                1
-                            ] ||
-                              payment.month}
-                          </td>
+                        <td style={tdStyle}>
+                          {MONTHS[payment.month - 1] ||
+                            payment.month}
+                        </td>
 
-                          <td
-                            style={
-                              tdStyle
-                            }
-                          >
-                            {Number(
-                              payment.amount ||
-                                0
-                            ).toLocaleString()}{' '}
-                            RWF
-                          </td>
+                        <td style={tdStyle}>
+                          {Number(
+                            payment.amount || 0
+                          ).toLocaleString()}{' '}
+                          RWF
+                        </td>
 
-                          <td
-                            style={
-                              tdStyle
-                            }
-                          >
-                            <StatusBadge
-                              status={
-                                payment.status
-                              }
-                            />
-                          </td>
-                        </tr>
-                      )
-                    )}
+                        <td style={tdStyle}>
+                          <StatusBadge
+                            status={payment.status}
+                          />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -1271,8 +1008,7 @@ function FamilyStat({
   return (
     <div
       style={{
-        background:
-          'rgba(255,255,255,0.06)',
+        background: 'rgba(255,255,255,0.06)',
         borderRadius: '13px',
         padding: '12px 6px',
         textAlign: 'center',
@@ -1324,8 +1060,7 @@ function SummaryCard({
         background: 'white',
         borderRadius: '16px',
         padding: '22px',
-        boxShadow:
-          '0 4px 15px rgba(0,0,0,0.05)',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
       }}
     >
       <div
@@ -1402,14 +1137,12 @@ function StatusBadge({
 const thStyle: React.CSSProperties = {
   padding: '13px',
   textAlign: 'left',
-  borderBottom:
-    '1px solid #e5e7eb',
+  borderBottom: '1px solid #e5e7eb',
   fontSize: '13px',
 };
 
 const tdStyle: React.CSSProperties = {
   padding: '13px',
-  borderBottom:
-    '1px solid #e5e7eb',
+  borderBottom: '1px solid #e5e7eb',
   fontSize: '14px',
 };
